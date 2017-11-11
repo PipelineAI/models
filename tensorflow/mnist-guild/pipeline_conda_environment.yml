@@ -1,8 +1,0 @@
-dependencies:
-  - pip=9.0.1
-  - python=2.7.8
-  - pip:
-    - grpcio>=0.15.0
-    - grpcio-tools>=0.15.0
-    - tensorflow==1.2.1
-    - psutil==5.3.1

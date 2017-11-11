@@ -17,7 +17,7 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_type': os.environ['PIPELINE_MODEL_TYPE'],
+_labels= {'model_type': os.environ['PIPELINE_MODEL_TYPE'], 
           'model_name': os.environ['PIPELINE_MODEL_NAME'],
           'model_tag': os.environ['PIPELINE_MODEL_TAG']}
 
@@ -25,7 +25,7 @@ _labels= {'model_type': os.environ['PIPELINE_MODEL_TYPE'],
 def _initialize_upon_import() -> TensorFlowServingModel:
     ''' Initialize / Restore Model Object.
     '''
-    return TensorFlowServingModel(host='localhost',
+    return TensorFlowServingModel(host='localhost', 
                                   port=9000,
                                   model_name=os.environ['PIPELINE_MODEL_NAME'],
                                   inputs_name='inputs',
@@ -58,7 +58,7 @@ def _transform_request(request: bytes) -> np.array:
     request_json = json.loads(request_str)
     request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 784)
     return request_np
-
+         
 
 def _transform_response(response: np.array) -> json:
     return json.dumps({"outputs": response.tolist()[0]})
