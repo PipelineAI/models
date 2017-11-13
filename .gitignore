@@ -1,2 +1,4 @@
+*.pyc
 generated-*
+.pipeline-generated-*
 .DS_Store
