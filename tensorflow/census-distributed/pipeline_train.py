@@ -213,6 +213,6 @@ if __name__ == '__main__':
           )]
       ),
       run_config=tf.contrib.learn.RunConfig(model_dir=args.job_dir),
-  #    schedule="train_and_evaluate",
+      schedule="local_run",
       hparams=hparam.HParams(**args.__dict__)
   )
