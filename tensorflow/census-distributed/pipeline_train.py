@@ -62,12 +62,6 @@ def generate_experiment_fn(**experiment_args):
 
 if __name__ == '__main__':
 
-#  python models/tensorflow/distributed-census/pipeline_train.py \
-#  --train-files=models/tensorflow/distributed-census/data/adult.data.csv \
-#  --eval-files=models/tensorflow/distributed-census/data/adult.test.csv \
-#  --job-dir=/root/output/ \
-#  --num-epochs=5
-
   parser = argparse.ArgumentParser()
   # Input Arguments
   parser.add_argument(
@@ -212,7 +206,9 @@ if __name__ == '__main__':
               exports_to_keep=1
           )]
       ),
+#      run_config=tf.estimator.RunConfig(model_dir=args.job_dir),
       run_config=tf.contrib.learn.RunConfig(model_dir=args.job_dir),
-      schedule="local_run",
+#      schedule="local_run",
+      schedule="train",
       hparams=hparam.HParams(**args.__dict__)
   )
