@@ -132,7 +132,8 @@ if __name__ == '__main__':
   parser.add_argument(
       '--job-dir',
       help='GCS location to write checkpoints and export models',
-      required=True
+      #required=True,
+      default=os.environ['PIPELINE_OUTPUT_PATH']
   )
   parser.add_argument(
       '--verbosity',
@@ -208,6 +209,7 @@ if __name__ == '__main__':
       ),
 #      run_config=tf.estimator.RunConfig(model_dir=args.job_dir),
       run_config=tf.contrib.learn.RunConfig(model_dir=args.job_dir),
+#      run_config=tf.contrib.learn.RunConfig(model_dir=os.environ['PIPELINE_OUTPUT_PATH']),
 #      schedule="local_run",
       schedule="train",
       hparams=hparam.HParams(**args.__dict__)

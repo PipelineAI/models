@@ -25,7 +25,8 @@ __all__ = ['predict']
 
 
 # Performance monitors, a-la prometheus...
-_labels= {'model_type': os.environ['PIPELINE_MODEL_TYPE'],
+_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
+          'model_type': os.environ['PIPELINE_MODEL_TYPE'],
           'model_name': os.environ['PIPELINE_MODEL_NAME'],
           'model_tag': os.environ['PIPELINE_MODEL_TAG']}
 

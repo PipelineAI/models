@@ -17,7 +17,8 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_type': os.environ['PIPELINE_MODEL_TYPE'], 
+_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
+          'model_type': os.environ['PIPELINE_MODEL_TYPE'], 
           'model_name': os.environ['PIPELINE_MODEL_NAME'],
           'model_tag': os.environ['PIPELINE_MODEL_TAG']}
 
