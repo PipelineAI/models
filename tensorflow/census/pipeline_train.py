@@ -8,7 +8,7 @@ from tensorflow.contrib.learn import learn_runner
 from tensorflow.contrib.learn.python.learn.utils import (
     saved_model_export_utils)
 from tensorflow.contrib.training.python.training import hparam
-
+from datetime import datetime
 
 def generate_experiment_fn(**experiment_args):
   """Create an experiment function.
@@ -29,13 +29,13 @@ def generate_experiment_fn(**experiment_args):
     # num_epochs can control duration if train_steps isn't
     # passed to Experiment
     train_input = lambda: model.generate_input_fn(
-        hparams.train_files,
+        [os.path.join(os.environ['PIPELINE_INPUT_PATH'], train_file) for train_file in hparams.train_files],
         num_epochs=hparams.num_epochs,
         batch_size=hparams.train_batch_size,
     )
     # Don't shuffle evaluation data
     eval_input = lambda: model.generate_input_fn(
-        hparams.eval_files,
+        [os.path.join(os.environ['PIPELINE_INPUT_PATH'], eval_file) for eval_file in hparams.eval_files],
         batch_size=hparams.eval_batch_size,
         shuffle=False
     )
@@ -43,7 +43,7 @@ def generate_experiment_fn(**experiment_args):
         tf.estimator.Estimator(
             model.generate_model_fn(
                 embedding_size=hparams.embedding_size,
-                # Construct layers sizes with exponetial decay
+                # Construct layers sizes with exponential decay
                 hidden_units=[
                     max(2, int(hparams.first_layer_size *
                                hparams.scale_factor**i))
@@ -55,6 +55,8 @@ def generate_experiment_fn(**experiment_args):
         ),
         train_input_fn=train_input,
         eval_input_fn=eval_input,
+#       export_fn
+#        checkpoint_and_export=True,
         **experiment_args
     )
   return _experiment_fn
@@ -65,14 +67,8 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   # Input Arguments
   parser.add_argument(
-      '--train-files',
-      help='GCS or local paths to training data',
-      nargs='+',
-      required=True
-  )
-  parser.add_argument(
       '--num-epochs',
-      help="""\
+      help="""
       Maximum number of training data epochs on which to train.
       If both --max-steps and --num-epochs are specified,
       the training job will run for --max-steps or --num-epochs,
@@ -91,12 +87,6 @@ if __name__ == '__main__':
       help='Batch size for evaluation steps',
       type=int,
       default=40
-  )
-  parser.add_argument(
-      '--eval-files',
-      help='GCS or local paths to evaluation data',
-      nargs='+',
-      required=True
   )
   # Training arguments
   parser.add_argument(
@@ -129,12 +119,12 @@ if __name__ == '__main__':
       default=0.7,
       type=float
   )
-  parser.add_argument(
-      '--job-dir',
-      help='GCS location to write checkpoints and export models',
+#  parser.add_argument(
+#      '--job-dir',
+#      help='GCS location to write checkpoints and export models',
       #required=True,
-      default=os.environ['PIPELINE_OUTPUT_PATH']
-  )
+#      default=os.environ['PIPELINE_OUTPUT_PATH']
+#  )
   parser.add_argument(
       '--verbosity',
       choices=[
@@ -181,7 +171,19 @@ if __name__ == '__main__':
       '--export-format',
       help='The input format of the exported SavedModel binary',
       choices=['JSON', 'CSV', 'EXAMPLE'],
-      default='JSON'
+      default='CSV'
+  )
+  parser.add_argument(
+      '--train-files',
+      help='GCS or local paths to training data',
+      nargs='+',
+      required=True
+  )
+  parser.add_argument(
+      '--eval-files',
+      help='GCS or local paths to training data',
+      nargs='+',
+      required=True
   )
 
   args = parser.parse_args()
@@ -207,10 +209,19 @@ if __name__ == '__main__':
               exports_to_keep=1
           )]
       ),
-#      run_config=tf.estimator.RunConfig(model_dir=args.job_dir),
-      run_config=tf.contrib.learn.RunConfig(model_dir=args.job_dir),
-#      run_config=tf.contrib.learn.RunConfig(model_dir=os.environ['PIPELINE_OUTPUT_PATH']),
-#      schedule="local_run",
-      schedule="train",
+      # Note:  For now, we are calcuating the version number from the current timestamp
+      # TODO:  Check OUT get_timestamped_export_dir() from https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/learn/python/learn/utils/saved_model_export_utils.py
+      run_config=tf.contrib.learn.RunConfig(model_dir=os.path.join(os.environ['PIPELINE_OUTPUT_PATH'], 
+                                                                   datetime.now().strftime("%s"))),
+# Note:  The following is throwing this error:
+#    return model_dir and model_dir.startswith("gs://")
+#TypeError: startswith first arg must be bytes or a tuple of bytes, not str
+#      run_config=tf.contrib.learn.RunConfig(model_dir=saved_model_export_utils.get_timestamped_export_dir(os.environ['PIPELINE_OUTPUT_PATH'])),
+      schedule="train", #local_run
       hparams=hparam.HParams(**args.__dict__)
+
   )
+
+# TODO:  Used Estimator.export_savedmodel or saved_model_export_utils.export_fn(estimator, export_dir_base, checkpoint_path)
+
+
