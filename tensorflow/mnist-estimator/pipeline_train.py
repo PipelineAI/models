@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 import os
 import glob
 import tensorflow as tf
+from datetime import datetime
 
 def mnist_model(features, mode, params):
     is_training = mode == tf.estimator.ModeKeys.TRAIN
@@ -122,7 +123,7 @@ def data_input_fn(filenames, batch_size=1000, shuffle=False):
         dataset = (tf.contrib.data.TFRecordDataset(filenames)
             .map(_parser))
         if shuffle:
-            dataset = dataset.shuffle(buffer_size=10_000)
+            dataset = dataset.shuffle(buffer_size=1_000)
 
         dataset = dataset.repeat(None) # Infinite iterations: let experiment determine num_epochs
         dataset = dataset.batch(batch_size)
@@ -132,13 +133,6 @@ def data_input_fn(filenames, batch_size=1000, shuffle=False):
         
         return features, labels
     return _input_fn
-
-
-def serving_input_fn():
-    inputs = {'inputs': tf.placeholder(tf.float32, [None, 28, 28])}
-    # Here, you can transform the data received from the API call
-    #input_features = inputs
-    return tf.estimator.export.ServingInputReceiver(features=inputs, receiver_tensors=inputs)
 
 
 if __name__ == '__main__':
@@ -151,7 +145,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--output-path',
-        default='./versions',
+        default=os.path.join(os.environ['PIPELINE_OUTPUT_PATH'], datetime.now().strftime("%s")),
         help='Directory where model summaries and checkpoints are stored'
     )
     args = parser.parse_args()
@@ -180,43 +174,38 @@ if __name__ == '__main__':
     train_input_fn = data_input_fn(glob.glob(os.path.join(hparams.input_path, 'train-*.tfrecords')), batch_size=train_batch_size)
     eval_input_fn = data_input_fn(os.path.join(hparams.input_path, 'validation.tfrecords'), batch_size=100)
 
-    #features = {"inputs" : tf.placeholder(tf.float32, [None, 28, 28])}
-    #serving_input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn(features=features)
-
     # Good Examples Here:  
     #    https://github.com/martin-gorner/tensorflow-mnist-tutorial/blob/master/mlengine/trainer/task.py
     # Bug: exports_to_keep=None is mandatory otherwise training crashes.
+    # More info here:  https://github.com/tensorflow/tensorflow/issues/12367
+    serving_feature_spec={
+       'inputs': tf.FixedLenFeature([], tf.float32)
+    }
+
+    serving_input_fn = tf.estimator.export.build_parsing_serving_input_receiver_fn(feature_spec=serving_feature_spec)
+
     export_strategy = tf.contrib.learn.utils.saved_model_export_utils.make_export_strategy(serving_input_fn=serving_input_fn, exports_to_keep=None)
 
-    experiment = tf.contrib.learn.Experiment(
-        mnist_classifier,
-        train_input_fn=train_input_fn,
-        eval_input_fn=eval_input_fn,
-        train_steps=train_steps,
-        export_strategies=export_strategy,
-        checkpoint_and_export=True
-    )
+    def _experiment_fn(run_config, hparams):
+        experiment = tf.contrib.learn.Experiment(
+            mnist_classifier,
+            train_input_fn=train_input_fn,
+            eval_input_fn=eval_input_fn,
+            train_steps=train_steps,
+            export_strategies=export_strategy,
+            checkpoint_and_export=True
+        )
+        return experiment
 
-    # Must be train_and_evaluate(), otherwise export strategy isn't processed
-    experiment.train_and_evaluate()
-    #experiment.train()
+    tf.contrib.learn.learn_runner.run(
+      experiment_fn=_experiment_fn,
+      run_config=run_config,
+      schedule="train_and_evaluate", #train_and_evaluate is required to trigger export_savedmodel()
+      hparams=hparams
+    )
 
     # Manual Evaluation:
     #test_input_fn = data_input_fn(os.path.join(hparams.input_path, 'test.tfrecords'), batch_size=1000)
     #predictions = mnist_classifier.predict(input_fn=test_input_fn)
     #for prediction in predictions:
     #    print(prediction)
-    
-    # Export for serving
-    #mnist_classifier.export_savedmodel(
-    #    os.path.join(hparams.output_path, 'serving'), 
-    #    serving_input_receiver_fn=serving_input_fn
-    #)
-
-    # From the following:
-    #   https://github.com/martin-gorner/tensorflow-mnist-tutorial/blob/master/mlengine/trainer/task.py#L174
-    # learn_runner needs an experiment function with a single parameter: the output directory.
-    # Here we pass additional command line arguments through a closure.
-    # experiment_fn = lambda output_dir: experiment_fn_with_params(output_dir, hparams, **otherargs)
-    # Compatibility warning: learn_runner is currently in contrib. It will move in TF 1.2
-    # tf.contrib.learn.learn_runner.run(experiment_fn, output_dir)
