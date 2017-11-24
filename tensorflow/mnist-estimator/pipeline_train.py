@@ -1,199 +1,222 @@
-import argparse
-import json
+#!/usr/bin/env python3
 
+from argparse import ArgumentParser
+import os
+import glob
 import tensorflow as tf
 
-from tensorflow.examples.tutorials.mnist import input_data
+def mnist_model(features, mode, params):
+    is_training = mode == tf.estimator.ModeKeys.TRAIN
+    print(features) 
+    with tf.name_scope('Input'):
+        # Input Layer
+        # HACK: https://github.com/tensorflow/tensorflow/issues/11674
+        if type(features) is dict:
+            features = features['inputs']
+        #    input_layer = tensorflow.contrib.layers.input_from_feature_columns(features, self.feature_columns)
+        #    logits = input_layer
 
-from datetime import datetime
-_version = int(datetime.now().strftime("%s"))
+        input_layer = tf.reshape(features, [-1, 28, 28, 1], name='input_reshape')
+        tf.summary.image('input', input_layer)
 
-def init_flags():
-    global FLAGS
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--rundir", default="./runs")
-    parser.add_argument("--datadir", default="./runs/data")
-    parser.add_argument("--servingdir", default="./versions")
-    parser.add_argument("--batch_size", type=int, default=1000)
-    parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--prepare", dest='just_data', action="store_true")
-    parser.add_argument("--test", action="store_true")
-    parser.add_argument('--learning_rate', type=float, default=0.025)
-    FLAGS, _ = parser.parse_known_args()
+    with tf.name_scope('Conv_1'):
+        # Convolutional Layer #1
+        conv1 = tf.layers.conv2d(
+          inputs=input_layer,
+          filters=32,
+          kernel_size=(5, 5),
+          padding='same',
+          activation=tf.nn.relu,
+          trainable=is_training)
 
-def init_data():
-    global mnist
-    mnist = input_data.read_data_sets(FLAGS.datadir, one_hot=True)
+        # Pooling Layer #1
+        pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=(2, 2), strides=2, padding='same')
 
-def init_train():
-    init_model()
-    init_train_op()
-    init_eval_op()
-    init_summaries()
-    init_collections()
-    init_session()
+    with tf.name_scope('Conv_2'):
+        # Convolutional Layer #2 and Pooling Layer #2
+        conv2 = tf.layers.conv2d(
+            inputs=pool1,
+            filters=64,
+            kernel_size=(5, 5),
+            padding='same',
+            activation=tf.nn.relu,
+            trainable=is_training)
+        
+        pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=(2, 2), strides=2, padding='same')
 
-def init_model():
-    global x, y, W, b
-    x = tf.placeholder(tf.float32, [None, 784])
-    W = tf.Variable(tf.zeros([784, 10]))
-    b = tf.Variable(tf.zeros([10]))
-    y = tf.nn.softmax(tf.matmul(x, W) + b)
+    with tf.name_scope('Dense_Dropout'):
+        # Dense Layer
+        # pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
+        pool2_flat = tf.contrib.layers.flatten(pool2)
+        dense = tf.layers.dense(inputs=pool2_flat, units=1_024, activation=tf.nn.relu, trainable=is_training)
+        dropout = tf.layers.dropout(inputs=dense, rate=params.dropout_rate, training=is_training)
 
-def init_train_op():
-    global y_, loss, train_op
-    y_ = tf.placeholder(tf.float32, [None, 10])
-    loss = tf.reduce_mean(
-             -tf.reduce_sum(
-               y_ * tf.log(y),
-               reduction_indices=[1]))
-    train_op = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(loss)
+    with tf.name_scope('Predictions'):
+        # Logits Layer
+        logits = tf.layers.dense(inputs=dropout, units=10, trainable=is_training)
 
-def init_eval_op():
-    global accuracy
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        return logits
 
-def init_summaries():
-    init_inputs_summary()
-    init_variable_summaries(W, "weights")
-    init_variable_summaries(b, "biases")
-    init_op_summaries()
-    init_summary_writers()
+def cnn_model_fn(features, labels, mode, params):
+    """Model function for CNN."""
 
-def init_inputs_summary():
-    tf.summary.image("inputs", tf.reshape(x, [-1, 28, 28, 1]), 10)
+    logits = mnist_model(features, mode, params)
+    predicted_logit = tf.argmax(input=logits, axis=1, output_type=tf.int32)
+    scores = tf.nn.softmax(logits, name='softmax_tensor')
+    # Generate Predictions
+    predictions = {
+      'classes': predicted_logit,
+      'probabilities': scores
+    }
 
-def init_variable_summaries(var, name):
-    with tf.name_scope(name):
-        mean = tf.reduce_mean(var)
-        tf.summary.scalar("mean", mean)
-        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-        tf.summary.scalar("stddev", stddev)
-        tf.summary.scalar("max", tf.reduce_max(var))
-        tf.summary.scalar("min", tf.reduce_min(var))
-        tf.summary.histogram(name, var)
+    export_outputs = {
+        'prediction': tf.estimator.export.ClassificationOutput(
+            scores=scores,
+            classes=tf.cast(predicted_logit, tf.string))
+    }
 
-def init_op_summaries():
-    tf.summary.scalar("loss", loss)
-    tf.summary.scalar("accuracy", accuracy)
+    # PREDICT
+    if mode == tf.estimator.ModeKeys.PREDICT:
+        return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions, export_outputs=export_outputs)
 
-def init_summary_writers():
-    global summaries, train_writer, validation_writer
-    summaries = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(
-        FLAGS.rundir + "/train",
-        tf.get_default_graph())
-    validation_writer = tf.summary.FileWriter(
-        FLAGS.rundir + "/validation")
+    # TRAIN and EVAL
+    loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
 
-def init_collections():
-    tf.add_to_collection("inputs", json.dumps({"image": x.name}))
-    tf.add_to_collection("outputs", json.dumps({"prediction": y.name}))
-    tf.add_to_collection("x", x.name)
-    tf.add_to_collection("y_", y_.name)
-    tf.add_to_collection("accuracy", accuracy.name)
+    accuracy = tf.metrics.accuracy(tf.argmax(labels, axis=1), predicted_logit)
+    eval_metric = { 'accuracy': accuracy }
 
-def init_session():
-    global sess
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    # Configure the Training Op (for TRAIN mode)
+    if mode == tf.estimator.ModeKeys.TRAIN:
+        tf.summary.scalar('accuracy', accuracy[0])
+        train_op = tf.contrib.layers.optimize_loss(
+            loss=loss,
+            global_step=tf.contrib.framework.get_global_step(),
+            learning_rate=params.learning_rate,
+            optimizer='Adam')
+    else:
+        train_op = None
 
-def train():
-    steps = (mnist.train.num_examples // FLAGS.batch_size) * FLAGS.epochs
-    for step in range(steps + 1):
-        images, labels = mnist.train.next_batch(FLAGS.batch_size)
-        batch = {x: images, y_: labels}
-        sess.run(train_op, batch)
-        maybe_log_accuracy(step, batch)
-    save_model()
+    return tf.estimator.EstimatorSpec(
+        mode=mode,
+        loss=loss,
+        train_op=train_op,
+        eval_metric_ops=eval_metric,
+        predictions=predictions,
+        export_outputs=export_outputs)
 
-def maybe_log_accuracy(step, last_training_batch):
-    if step % 20 == 0:
-        evaluate(step, last_training_batch, train_writer, "training")
-        validation_data = {
-            x: mnist.validation.images,
-            y_: mnist.validation.labels
+def data_input_fn(filenames, batch_size=1000, shuffle=False):
+    
+    def _parser(record):
+        features={
+            'label': tf.FixedLenFeature([], tf.int64),
+            'image_raw': tf.FixedLenFeature([], tf.string)
         }
-        evaluate(step, validation_data, validation_writer, "validation")
+        parsed_record = tf.parse_single_example(record, features)
+        image = tf.decode_raw(parsed_record['image_raw'], tf.float32)
 
-def evaluate(step, data, writer, name):
-    accuracy_val, summary = sess.run([accuracy, summaries], data)
-    writer.add_summary(summary, step)
-    print("Step %i: %s=%f" % (step, name, accuracy_val))
+        label = tf.cast(parsed_record['label'], tf.int32)
 
-def maybe_save_model(step):
-    epoch_step = mnist.train.num_examples / FLAGS.batch_size
-    if step != 0 and step % epoch_step == 0:
-        save_model()
+        return image, tf.one_hot(label, depth=10)
+        
+    def _input_fn():
+        dataset = (tf.contrib.data.TFRecordDataset(filenames)
+            .map(_parser))
+        if shuffle:
+            dataset = dataset.shuffle(buffer_size=10_000)
 
-def save_model():
-    print("Saving trained model")
-    tf.gfile.MakeDirs(FLAGS.rundir + "/model")
-    exported_model_path = FLAGS.rundir + "/model/export"
-    tf.train.Saver().save(sess, exported_model_path)
+        dataset = dataset.repeat(None) # Infinite iterations: let experiment determine num_epochs
+        dataset = dataset.batch(batch_size)
+        
+        iterator = dataset.make_one_shot_iterator()
+        features, labels = iterator.get_next()
+        
+        return features, labels
+    return _input_fn
 
-    from tensorflow.python.saved_model import utils
-    from tensorflow.python.saved_model import signature_constants
-    from tensorflow.python.saved_model import signature_def_utils
 
-    graph = tf.get_default_graph()
+def serving_input_fn():
+    inputs = {'inputs': tf.placeholder(tf.float32, [None, 28, 28])}
+    # Here, you can transform the data received from the API call
+    #input_features = inputs
+    return tf.estimator.export.ServingInputReceiver(features=inputs, receiver_tensors=inputs)
 
-    inputs_map = {'inputs': x}
-    outputs_map = {'outputs': y}
 
-    prediction_signature = signature_def_utils.predict_signature_def(inputs=inputs_map,
-                                                                     outputs=outputs_map)
+if __name__ == '__main__':
 
-    from tensorflow.python.saved_model import builder as saved_model_builder
-    from tensorflow.python.saved_model import tag_constants
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--input-path",
+        default='./data',
+        help='Directory where TFRecords are stored'
+    )
+    parser.add_argument(
+        '--output-path',
+        default='./versions',
+        help='Directory where model summaries and checkpoints are stored'
+    )
+    args = parser.parse_args()
 
-    saved_model_path = '%s/%s' % (FLAGS.servingdir, _version)
-    print(saved_model_path)
+    tf.logging.set_verbosity(tf.logging.INFO)
 
-    builder = saved_model_builder.SavedModelBuilder(saved_model_path)
-    builder.add_meta_graph_and_variables(sess,
-                                         [tag_constants.SERVING],
-                                         signature_def_map={'predict':prediction_signature,
-    signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:prediction_signature},
-                                         clear_devices=True,
+    run_config = tf.contrib.learn.RunConfig(
+        model_dir=args.output_path, 
+        save_checkpoints_steps=20, 
+        save_summary_steps=20)
+
+    hparams = tf.contrib.training.HParams(
+        learning_rate=1e-3, 
+        dropout_rate=0.4,
+        input_path=os.path.expanduser(args.input_path),
+        output_path=os.path.expanduser(args.output_path))
+        
+    mnist_classifier = tf.estimator.Estimator(
+        model_fn=cnn_model_fn, 
+        config=run_config,
+        params=hparams
     )
 
-    builder.save(as_text=False)
-    print("")
+    train_batch_size = 1_000
+    train_steps = 8_000 // train_batch_size # len dataset // batch size
+    train_input_fn = data_input_fn(glob.glob(os.path.join(hparams.input_path, 'train-*.tfrecords')), batch_size=train_batch_size)
+    eval_input_fn = data_input_fn(os.path.join(hparams.input_path, 'validation.tfrecords'), batch_size=100)
 
-#    served_model_path = '%s/%s' % (FLAGS.servingdir, _version)
+    #features = {"inputs" : tf.placeholder(tf.float32, [None, 28, 28])}
+    #serving_input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn(features=features)
 
-    print("Training complete.  tf.train.Saver exported to '%s'.\nSavedModelBuilder saved to '%s'." % (exported_model_path, saved_model_path))
-    print("")
+    # Good Examples Here:  
+    #    https://github.com/martin-gorner/tensorflow-mnist-tutorial/blob/master/mlengine/trainer/task.py
+    # Bug: exports_to_keep=None is mandatory otherwise training crashes.
+    export_strategy = tf.contrib.learn.utils.saved_model_export_utils.make_export_strategy(serving_input_fn=serving_input_fn, exports_to_keep=None)
 
+    experiment = tf.contrib.learn.Experiment(
+        mnist_classifier,
+        train_input_fn=train_input_fn,
+        eval_input_fn=eval_input_fn,
+        train_steps=train_steps,
+        export_strategies=export_strategy,
+        checkpoint_and_export=True
+    )
 
-def init_test():
-    init_session()
-    init_exported_collections()
+    # Must be train_and_evaluate(), otherwise export strategy isn't processed
+    experiment.train_and_evaluate()
+    #experiment.train()
 
+    # Manual Evaluation:
+    #test_input_fn = data_input_fn(os.path.join(hparams.input_path, 'test.tfrecords'), batch_size=1000)
+    #predictions = mnist_classifier.predict(input_fn=test_input_fn)
+    #for prediction in predictions:
+    #    print(prediction)
+    
+    # Export for serving
+    #mnist_classifier.export_savedmodel(
+    #    os.path.join(hparams.output_path, 'serving'), 
+    #    serving_input_receiver_fn=serving_input_fn
+    #)
 
-def init_exported_collections():
-    global x, y_, accuracy
-    saver = tf.train.import_meta_graph(FLAGS.rundir + "/model/export.meta")
-    saver.restore(sess, FLAGS.rundir + "/model/export")
-    x = sess.graph.get_tensor_by_name(tf.get_collection("x")[0])
-    y_ = sess.graph.get_tensor_by_name(tf.get_collection("y_")[0])
-    accuracy = sess.graph.get_tensor_by_name(tf.get_collection("accuracy")[0])
-
-def test():
-    data = {x: mnist.test.images, y_: mnist.test.labels}
-    test_accuracy = sess.run(accuracy, data)
-    print("Test accuracy=%f" % test_accuracy)
-
-if __name__ == "__main__":
-    init_flags()
-    init_data()
-    if FLAGS.just_data:
-        pass
-    elif FLAGS.test:
-        init_test()
-        test()
-    else:
-        init_train()
-        train()
+    # From the following:
+    #   https://github.com/martin-gorner/tensorflow-mnist-tutorial/blob/master/mlengine/trainer/task.py#L174
+    # learn_runner needs an experiment function with a single parameter: the output directory.
+    # Here we pass additional command line arguments through a closure.
+    # experiment_fn = lambda output_dir: experiment_fn_with_params(output_dir, hparams, **otherargs)
+    # Compatibility warning: learn_runner is currently in contrib. It will move in TF 1.2
+    # tf.contrib.learn.learn_runner.run(experiment_fn, output_dir)
