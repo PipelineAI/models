@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    node {
-      label 'train-census'
-    }
-    
-  }
+  agent any
   stages {
     stage('install cli-pipeline') {
       steps {
