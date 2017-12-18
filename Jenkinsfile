@@ -3,7 +3,9 @@ pipeline {
   stages {
     stage('install cli-pipeline') {
       steps {
-        sh '''wget https://bootstrap.pypa.io/get-pip.py
+        sh '''apt-get install python3.6
+
+wget https://bootstrap.pypa.io/get-pip.py
 chmod a+x get-pip.py
 ./get-pip.py
 
