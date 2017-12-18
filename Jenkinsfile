@@ -3,7 +3,12 @@ pipeline {
   stages {
     stage('install cli-pipeline') {
       steps {
-        sh 'pip install cli-pipeline==1.4.31 --ignore-installed --no-cache -U'
+        sh '''wget https://bootstrap.pypa.io/get-pip.py
+chmod a+x get-pip.py
+./get-pip.py
+
+
+pip install cli-pipeline==1.4.31 --ignore-installed --no-cache -U'''
       }
     }
     stage('build train-census') {
