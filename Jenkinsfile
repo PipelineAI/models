@@ -3,9 +3,13 @@ pipeline {
   stages {
     stage('install cli-pipeline') {
       steps {
-        sh '''wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+        sh '''rm Miniconda3-latest-Linux-x86_64.sh
+
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
 chmod a+x Miniconda3-latest-Linux-x86_64.sh
-./Miniconda3-latest-Linux-x86_64.sh
+
+bash Miniconda3-latest-Linux-x86_64.sh
 
 pip install cli-pipeline==1.4.31 --ignore-installed --no-cache -U'''
       }
