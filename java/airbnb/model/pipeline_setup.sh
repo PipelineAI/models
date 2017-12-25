@@ -1,4 +1,3 @@
 #!/bin/bash
 
-#export HTTP_PROXY=your.proxy.server:8080
-#export HTTPS_PROXY=your.proxy.server:8080
+# Add Custom Stuff Here (ie export HTTP_PROXY_HOST=...)
