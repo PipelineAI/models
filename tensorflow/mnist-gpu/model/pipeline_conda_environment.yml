@@ -4,5 +4,7 @@ dependencies:
   - pip:
     - grpcio>=0.15.0
     - grpcio-tools>=0.15.0
-    - tensorflow-gpu==1.4.1
+# 1.4.1 expects CUDA 8.0, cuDNN 6.0 (not 9.0/7.0)
+#    - tensorflow-gpu==1.4.1
+    - tf-nightly-gpu
     - pipeline-runtime>=1.0.3
