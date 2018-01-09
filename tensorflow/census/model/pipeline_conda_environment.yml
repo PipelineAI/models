@@ -1,6 +1,6 @@
 dependencies:
   - pip=9.0.1=py35_1
-  - python=3.5
+  - python=3.6
   - pip:
     - grpcio>=0.15.0
     - grpcio-tools>=0.15.0
