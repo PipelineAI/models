@@ -1,5 +1,3 @@
-https://developers.googleblog.com/2017/12/creating-custom-estimators-in-tensorflow.html
-
 # MNIST in TensorFlow
 
 This directory builds a convolutional neural net to classify the [MNIST
@@ -61,3 +59,4 @@ Result for output key probabilities:
     3.30306928e-11   2.87386645e-02   2.82353517e-02   8.21146413e-18
     2.52568233e-03   4.15460236e-04]]
 ```
+
