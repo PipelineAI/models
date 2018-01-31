@@ -1,3 +1,6 @@
+import os
+import cloudpickle as pickle
+
 if __name__ == '__main__':
     import numpy as np
     from sklearn import linear_model
@@ -24,9 +27,7 @@ if __name__ == '__main__':
     # Train the model using the training sets
     model.fit(diabetes_X_train, diabetes_y_train)
 
-    import cloudpickle as pickle
-
-    model_pkl_path = 'model.pkl'
+    model_pkl_path = '%s/model.pkl' % os.environ['PIPELINE_MODEL_PATH']
 
     with open(model_pkl_path, 'wb') as fh:
         pickle.dump(model, fh)

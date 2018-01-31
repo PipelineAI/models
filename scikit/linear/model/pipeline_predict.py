@@ -54,7 +54,10 @@ def _transform_request(request: bytes) -> np.array:
     request_str = '[%s]' % request_str
     request_json = ujson.loads(request_str)
     request_transformed = ([json_line['feature0'] for json_line in request_json])
-    return np.array(request_transformed)
+
+#    print(request_transformed.reshape(-1, 1))
+
+    return np.array(request_transformed).reshape(-1, 1)
 
 
 @monitor(labels=_labels, name="transform_response")
