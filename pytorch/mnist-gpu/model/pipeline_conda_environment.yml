@@ -1,7 +1,8 @@
 dependencies:
   - pip=9.0.1
   - python=3.6
+  - pytorch
+  - torchvision
+  - cuda90
   - pip:
-    - torch
-    - torchvision
     - pipeline-runtime>=1.0.3

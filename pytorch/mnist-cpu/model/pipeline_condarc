@@ -11,6 +11,7 @@
 channels:
   - conda-forge 
   - defaults
+  - pytorch
 
 # Show channel URLs when displaying what is going to be downloaded
 # and in 'conda list'. The default is False.

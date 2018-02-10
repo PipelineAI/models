@@ -112,10 +112,8 @@ def test():
 
 
 for epoch in range(1, args.epochs + 1):
-    saved_model_path = './model.pth'
-    #train(epoch)
-    model.load_state_dict(torch.load(saved_model_path))
+    train(epoch)
     test()
-    #torch.save(model.state_dict(), saved_model_path)
-    #model.load_state_dict(torch.load(saved_model_path))
+    torch.save(model.state_dict(), saved_model_path)
+    model.load_state_dict(torch.load(saved_model_path))
     print('Save model to "%s": %s' % (saved_model_path, model))
