@@ -49,7 +49,7 @@ class Net(nn.Module):
 def _initialize_upon_import() -> Net:
     ''' Initialize / Restore Model Object.
     '''
-    saved_model_path = './model.pth'
+    saved_model_path = '%s/model.pth' % os.environ['PIPELINE_MODEL_PATH']
     model = Net()
     model.load_state_dict(torch.load(saved_model_path))
     print('Loaded model from "%s": %s' % (saved_model_path, model))
