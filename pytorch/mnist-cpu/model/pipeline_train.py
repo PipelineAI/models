@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
+import os
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -13,8 +14,8 @@ parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                    help='number of epochs to train (default: 10)')
+parser.add_argument('--epochs', type=int, default=5, metavar='N',
+                    help='number of epochs to train (default: 5)')
 parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                     help='learning rate (default: 0.01)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
@@ -114,6 +115,7 @@ def test():
 for epoch in range(1, args.epochs + 1):
     train(epoch)
     test()
+    saved_model_path = '%s/model.pth' % os.environ['PIPELINE_OUTPUT_PATH']
     torch.save(model.state_dict(), saved_model_path)
     model.load_state_dict(torch.load(saved_model_path))
     print('Save model to "%s": %s' % (saved_model_path, model))
