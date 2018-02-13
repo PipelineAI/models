@@ -8,6 +8,12 @@ from tensorflow.examples.tutorials.mnist import input_data
 from datetime import datetime
 _version = int(datetime.now().strftime("%s"))
 
+## Variables Provided by PipelineAI
+#
+# PIPELINE_INPUT_PATH <- where you'll find the training/validation/test data
+# PIPELINE_MODEL_PATH <- where you'll write the trained model
+# PIPELINE_OUTPUT_PATH <- training logs (ie. tensorboard)
+
 def init_flags():
     global FLAGS
     parser = argparse.ArgumentParser()
@@ -181,10 +187,12 @@ def init_exported_collections():
     y_ = sess.graph.get_tensor_by_name(tf.get_collection("y_")[0])
     accuracy = sess.graph.get_tensor_by_name(tf.get_collection("accuracy")[0])
 
+
 def test():
     data = {x: mnist.test.images, y_: mnist.test.labels}
     test_accuracy = sess.run(accuracy, data)
     print("Test accuracy=%f" % test_accuracy)
+
 
 if __name__ == "__main__":
     init_flags()
