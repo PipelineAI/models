@@ -2,7 +2,6 @@ dependencies:
   - pip=9.0.1
   - python=3.6
   - pip:
-    - grpcio>=0.15.0
-    - grpcio-tools>=0.15.0
-    - tensorflow==1.5.0
-    - pipeline-runtime>=1.0.3
+    - grpcio>=1.0
+    - tensorflow==1.6.0rc1
+    - pipeline-runtime==1.0.6

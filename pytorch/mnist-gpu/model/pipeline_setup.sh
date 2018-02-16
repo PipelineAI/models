@@ -1,4 +1,3 @@
 #!/bin/bash
 
-# put anything here that needs downloading at build time
-#
+# One-time setup during Docker build

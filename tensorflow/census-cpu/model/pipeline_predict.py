@@ -29,8 +29,6 @@ def _initialize_upon_import() -> TensorFlowServingModel:
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name=os.environ['PIPELINE_MODEL_NAME'],
-                                  inputs_name='inputs',
-                                  outputs_name='outputs',
                                   timeout=100)
 
 
@@ -55,11 +53,11 @@ def predict(request: bytes) -> bytes:
     return transformed_response
 
 
-def _transform_request(request: bytes) -> np.array:
+def _transform_request(request: bytes) -> dict:
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
     request_np = ( (255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 784)
-    return request_np
+    return {'image': request_np}
 
 
 def _transform_response(response: np.array) -> json:

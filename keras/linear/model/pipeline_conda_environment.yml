@@ -13,4 +13,4 @@ dependencies:
   - h5py=2.7.0
   - pip:  
     - keras==2.1.3
-    - pipeline-runtime>=1.0.3
+    - pipeline-runtime==1.0.6

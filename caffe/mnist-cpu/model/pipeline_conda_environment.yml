@@ -5,4 +5,4 @@ dependencies:
   - python=3.6
   - caffe2 
   - pip:
-    - pipeline-runtime>=1.0.3
+    - pipeline-runtime==1.0.6
