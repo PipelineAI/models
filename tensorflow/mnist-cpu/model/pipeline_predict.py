@@ -52,12 +52,12 @@ def predict(request: bytes) -> bytes:
     return transformed_response
 
 
-def _transform_request(request: bytes) -> np.array:
+def _transform_request(request: bytes) -> dict:
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 784)
-    return {'inputs': request_np}
+    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
+    return {'image': request_np}
 
 
-def _transform_response(response: np.array) -> json:
-    return json.dumps({"outputs": response['outputs'].tolist()})
+def _transform_response(response: dict) -> json:
+    return json.dumps({'classes': response['classes'].tolist(), 'probabilities': response['probabilities'].tolist()})

@@ -29,8 +29,6 @@ def _initialize_upon_import() -> TensorFlowServingModel:
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name=os.environ['PIPELINE_MODEL_NAME'],
-                                  inputs_name='inputs',
-                                  outputs_name='outputs',
                                   timeout=100)
 
 
@@ -41,8 +39,6 @@ _model = _initialize_upon_import()
 @log(labels=_labels, logger=_logger)
 def predict(request: bytes) -> bytes:
     '''Where the magic happens...'''
-# TODO:  Check this out:  https://github.com/MtDersvan/tf_playground/blob/master/wide_and_deep_tutorial/wide_and_deep_basic_serving.md
-# TODO:  Check this out, as well:  https://www.tensorflow.org/programmers_guide/saved_model
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)
 
@@ -55,12 +51,9 @@ def predict(request: bytes) -> bytes:
     return transformed_response
 
 
-def _transform_request(request: bytes) -> np.array:
-    request_str = request.decode('utf-8')
-    request_json = json.loads(request_str)
-    request_np = ( (255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 784)
-    return request_np
+def _transform_request(request: bytes) -> dict:
+    # TODO
 
 
-def _transform_response(response: np.array) -> json:
-    return json.dumps({"outputs": response.tolist()[0]})
+def _transform_response(response: dict) -> bytes:
+    # TODO

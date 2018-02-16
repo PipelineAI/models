@@ -1,207 +1,262 @@
+#  Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+"""Convolutional Neural Network Estimator for MNIST, built with tf.layers."""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import argparse
-import json
+import os
+import sys
 
 import tensorflow as tf
-
-from tensorflow.examples.tutorials.mnist import input_data
-
-from datetime import datetime
-_version = int(datetime.now().strftime("%s"))
-
-## Variables Provided by PipelineAI
-#
-# PIPELINE_INPUT_PATH <- where you'll find the training/validation/test data
-# PIPELINE_MODEL_PATH <- where you'll write the trained model
-# PIPELINE_OUTPUT_PATH <- training logs (ie. tensorboard)
-
-def init_flags():
-    global FLAGS
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--rundir", default="./runs")
-    parser.add_argument("--datadir", default="./runs/data")
-    parser.add_argument("--servingdir", default="./versions")
-    parser.add_argument("--batch_size", type=int, default=1000)
-    parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--prepare", dest='just_data', action="store_true")
-    parser.add_argument("--test", action="store_true")
-    parser.add_argument('--learning_rate', type=float, default=0.025)
-    FLAGS, _ = parser.parse_known_args()
-
-def init_data():
-    global mnist
-    mnist = input_data.read_data_sets(FLAGS.datadir, one_hot=True)
-
-def init_train():
-    init_model()
-    init_train_op()
-    init_eval_op()
-    init_summaries()
-    init_collections()
-    init_session()
-
-def init_model():
-    global x, y, W, b
-    x = tf.placeholder(tf.float32, [None, 784])
-    W = tf.Variable(tf.zeros([784, 10]))
-    b = tf.Variable(tf.zeros([10]))
-    y = tf.nn.softmax(tf.matmul(x, W) + b)
-
-def init_train_op():
-    global y_, loss, train_op
-    y_ = tf.placeholder(tf.float32, [None, 10])
-    loss = tf.reduce_mean(
-             -tf.reduce_sum(
-               y_ * tf.log(y),
-               reduction_indices=[1]))
-    train_op = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(loss)
-
-def init_eval_op():
-    global accuracy
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-def init_summaries():
-    init_inputs_summary()
-    init_variable_summaries(W, "weights")
-    init_variable_summaries(b, "biases")
-    init_op_summaries()
-    init_summary_writers()
-
-def init_inputs_summary():
-    tf.summary.image("inputs", tf.reshape(x, [-1, 28, 28, 1]), 10)
-
-def init_variable_summaries(var, name):
-    with tf.name_scope(name):
-        mean = tf.reduce_mean(var)
-        tf.summary.scalar("mean", mean)
-        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-        tf.summary.scalar("stddev", stddev)
-        tf.summary.scalar("max", tf.reduce_max(var))
-        tf.summary.scalar("min", tf.reduce_min(var))
-        tf.summary.histogram(name, var)
-
-def init_op_summaries():
-    tf.summary.scalar("loss", loss)
-    tf.summary.scalar("accuracy", accuracy)
-
-def init_summary_writers():
-    global summaries, train_writer, validation_writer
-    summaries = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(
-        FLAGS.rundir + "/train",
-        tf.get_default_graph())
-    validation_writer = tf.summary.FileWriter(
-        FLAGS.rundir + "/validation")
-
-def init_collections():
-    tf.add_to_collection("inputs", json.dumps({"image": x.name}))
-    tf.add_to_collection("outputs", json.dumps({"prediction": y.name}))
-    tf.add_to_collection("x", x.name)
-    tf.add_to_collection("y_", y_.name)
-    tf.add_to_collection("accuracy", accuracy.name)
-
-def init_session():
-    global sess
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
-
-def train():
-    steps = (mnist.train.num_examples // FLAGS.batch_size) * FLAGS.epochs
-    for step in range(steps + 1):
-        images, labels = mnist.train.next_batch(FLAGS.batch_size)
-        batch = {x: images, y_: labels}
-        sess.run(train_op, batch)
-        maybe_log_accuracy(step, batch)
-    save_model()
-
-def maybe_log_accuracy(step, last_training_batch):
-    if step % 20 == 0:
-        evaluate(step, last_training_batch, train_writer, "training")
-        validation_data = {
-            x: mnist.validation.images,
-            y_: mnist.validation.labels
-        }
-        evaluate(step, validation_data, validation_writer, "validation")
-
-def evaluate(step, data, writer, name):
-    accuracy_val, summary = sess.run([accuracy, summaries], data)
-    writer.add_summary(summary, step)
-    print("Step %i: %s=%f" % (step, name, accuracy_val))
-
-def maybe_save_model(step):
-    epoch_step = mnist.train.num_examples / FLAGS.batch_size
-    if step != 0 and step % epoch_step == 0:
-        save_model()
-
-def save_model():
-    print("Saving trained model")
-    tf.gfile.MakeDirs(FLAGS.rundir + "/model")
-    exported_model_path = FLAGS.rundir + "/model/export"
-    tf.train.Saver().save(sess, exported_model_path)
-
-    from tensorflow.python.saved_model import utils
-    from tensorflow.python.saved_model import signature_constants
-    from tensorflow.python.saved_model import signature_def_utils
-
-    graph = tf.get_default_graph()
-
-    inputs_map = {'inputs': x}
-    outputs_map = {'outputs': y}
-
-    prediction_signature = signature_def_utils.predict_signature_def(inputs=inputs_map,
-                                                                     outputs=outputs_map)
-
-    from tensorflow.python.saved_model import builder as saved_model_builder
-    from tensorflow.python.saved_model import tag_constants
-
-    saved_model_path = '%s/%s' % (FLAGS.servingdir, _version)
-    print(saved_model_path)
-
-    builder = saved_model_builder.SavedModelBuilder(saved_model_path)
-    builder.add_meta_graph_and_variables(sess,
-                                         [tag_constants.SERVING],
-                                         signature_def_map={'predict':prediction_signature,
-    signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:prediction_signature},
-                                         clear_devices=True,
-    )
-
-    builder.save(as_text=False)
-    print("")
-
-#    served_model_path = '%s/%s' % (FLAGS.servingdir, _version)
-
-    print("Training complete.  tf.train.Saver exported to '%s'.\nSavedModelBuilder saved to '%s'." % (exported_model_path, saved_model_path))
-    print("")
+import dataset
 
 
-def init_test():
-    init_session()
-    init_exported_collections()
+class Model(object):
+  """Class that defines a graph to recognize digits in the MNIST dataset."""
 
+  def __init__(self, data_format):
+    """Creates a model for classifying a hand-written digit.
 
-def init_exported_collections():
-    global x, y_, accuracy
-    saver = tf.train.import_meta_graph(FLAGS.rundir + "/model/export.meta")
-    saver.restore(sess, FLAGS.rundir + "/model/export")
-    x = sess.graph.get_tensor_by_name(tf.get_collection("x")[0])
-    y_ = sess.graph.get_tensor_by_name(tf.get_collection("y_")[0])
-    accuracy = sess.graph.get_tensor_by_name(tf.get_collection("accuracy")[0])
-
-
-def test():
-    data = {x: mnist.test.images, y_: mnist.test.labels}
-    test_accuracy = sess.run(accuracy, data)
-    print("Test accuracy=%f" % test_accuracy)
-
-
-if __name__ == "__main__":
-    init_flags()
-    init_data()
-    if FLAGS.just_data:
-        pass
-    elif FLAGS.test:
-        init_test()
-        test()
+    Args:
+      data_format: Either 'channels_first' or 'channels_last'.
+        'channels_first' is typically faster on GPUs while 'channels_last' is
+        typically faster on CPUs. See
+        https://www.tensorflow.org/performance/performance_guide#data_formats
+    """
+    if data_format == 'channels_first':
+      self._input_shape = [-1, 1, 28, 28]
     else:
-        init_train()
-        train()
+      assert data_format == 'channels_last'
+      self._input_shape = [-1, 28, 28, 1]
+
+    self.conv1 = tf.layers.Conv2D(
+        32, 5, padding='same', data_format=data_format, activation=tf.nn.relu)
+    self.conv2 = tf.layers.Conv2D(
+        64, 5, padding='same', data_format=data_format, activation=tf.nn.relu)
+    self.fc1 = tf.layers.Dense(1024, activation=tf.nn.relu)
+    self.fc2 = tf.layers.Dense(10)
+    self.dropout = tf.layers.Dropout(0.4)
+    self.max_pool2d = tf.layers.MaxPooling2D(
+        (2, 2), (2, 2), padding='same', data_format=data_format)
+
+  def __call__(self, inputs, training):
+    """Add operations to classify a batch of input images.
+
+    Args:
+      inputs: A Tensor representing a batch of input images.
+      training: A boolean. Set to True to add operations required only when
+        training the classifier.
+
+    Returns:
+      A logits Tensor with shape [<batch_size>, 10].
+    """
+    y = tf.reshape(inputs, self._input_shape)
+    y = self.conv1(y)
+    y = self.max_pool2d(y)
+    y = self.conv2(y)
+    y = self.max_pool2d(y)
+    y = tf.layers.flatten(y)
+    y = self.fc1(y)
+    y = self.dropout(y, training=training)
+    return self.fc2(y)
+
+
+def model_fn(features, labels, mode, params):
+  """The model_fn argument for creating an Estimator."""
+  model = Model(params['data_format'])
+  image = features
+  if isinstance(image, dict):
+    image = features['image']
+
+  if mode == tf.estimator.ModeKeys.PREDICT:
+    logits = model(image, training=False)
+    predictions = {
+        'classes': tf.argmax(logits, axis=1),
+        'probabilities': tf.nn.softmax(logits),
+    }
+    return tf.estimator.EstimatorSpec(
+        mode=tf.estimator.ModeKeys.PREDICT,
+        predictions=predictions,
+        export_outputs={
+            'classify': tf.estimator.export.PredictOutput(predictions)
+        })
+  if mode == tf.estimator.ModeKeys.TRAIN:
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-4)
+
+    # If we are running multi-GPU, we need to wrap the optimizer.
+    if params.get('multi_gpu'):
+      optimizer = tf.contrib.estimator.TowerOptimizer(optimizer)
+
+    logits = model(image, training=True)
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    accuracy = tf.metrics.accuracy(
+        labels=labels, predictions=tf.argmax(logits, axis=1))
+    # Name the accuracy tensor 'train_accuracy' to demonstrate the
+    # LoggingTensorHook.
+    tf.identity(accuracy[1], name='train_accuracy')
+    tf.summary.scalar('train_accuracy', accuracy[1])
+    return tf.estimator.EstimatorSpec(
+        mode=tf.estimator.ModeKeys.TRAIN,
+        loss=loss,
+        train_op=optimizer.minimize(loss, tf.train.get_or_create_global_step()))
+  if mode == tf.estimator.ModeKeys.EVAL:
+    logits = model(image, training=False)
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    return tf.estimator.EstimatorSpec(
+        mode=tf.estimator.ModeKeys.EVAL,
+        loss=loss,
+        eval_metric_ops={
+            'accuracy':
+                tf.metrics.accuracy(
+                    labels=labels,
+                    predictions=tf.argmax(logits, axis=1)),
+        })
+
+
+def validate_batch_size_for_multi_gpu(batch_size):
+  """For multi-gpu, batch-size must be a multiple of the number of
+  available GPUs.
+
+  Note that this should eventually be handled by replicate_model_fn
+  directly. Multi-GPU support is currently experimental, however,
+  so doing the work here until that feature is in place.
+  """
+  from tensorflow.python.client import device_lib
+
+  local_device_protos = device_lib.list_local_devices()
+  num_gpus = sum([1 for d in local_device_protos if d.device_type == 'GPU'])
+  if not num_gpus:
+    raise ValueError('Multi-GPU mode was specified, but no GPUs '
+      'were found. To use CPU, run without --multi_gpu.')
+
+  remainder = batch_size % num_gpus
+  if remainder:
+    err = ('When running with multiple GPUs, batch size '
+      'must be a multiple of the number of available GPUs. '
+      'Found {} GPUs with a batch size of {}; try --batch_size={} instead.'
+      ).format(num_gpus, batch_size, batch_size - remainder)
+    raise ValueError(err)
+
+
+def main(unused_argv):
+  model_function = model_fn
+
+  if FLAGS.multi_gpu:
+    validate_batch_size_for_multi_gpu(FLAGS.batch_size)
+
+    # There are two steps required if using multi-GPU: (1) wrap the model_fn,
+    # and (2) wrap the optimizer. The first happens here, and (2) happens
+    # in the model_fn itself when the optimizer is defined.
+    model_function = tf.contrib.estimator.replicate_model_fn(
+        model_fn, loss_reduction=tf.losses.Reduction.MEAN)
+
+  data_format = FLAGS.data_format
+  if data_format is None:
+    data_format = ('channels_first'
+                   if tf.test.is_built_with_cuda() else 'channels_last')
+  mnist_classifier = tf.estimator.Estimator(
+      model_fn=model_function,
+      model_dir=FLAGS.model_dir,
+      params={
+          'data_format': data_format,
+          'multi_gpu': FLAGS.multi_gpu
+      })
+
+  # Train the model
+  def train_input_fn():
+    # When choosing shuffle buffer sizes, larger sizes result in better
+    # randomness, while smaller sizes use less memory. MNIST is a small
+    # enough dataset that we can easily shuffle the full epoch.
+    ds = dataset.train('%s/training' % FLAGS.data_dir)
+    ds = ds.cache().shuffle(buffer_size=50000).batch(FLAGS.batch_size).repeat(
+        FLAGS.train_epochs)
+    return ds
+
+  # Set up training hook that logs the training accuracy every 100 steps.
+  tensors_to_log = {'train_accuracy': 'train_accuracy'}
+  logging_hook = tf.train.LoggingTensorHook(
+      tensors=tensors_to_log, every_n_iter=100)
+  mnist_classifier.train(input_fn=train_input_fn, hooks=[logging_hook])
+
+  # Evaluate the model and print results
+  def eval_input_fn():
+    return dataset.test('%s/validation' % FLAGS.data_dir).batch(
+        FLAGS.batch_size).make_one_shot_iterator().get_next()
+
+  eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
+  print()
+  print('Evaluation results:\n\t%s' % eval_results)
+
+  # Export the model
+  if FLAGS.export_dir is not None:
+    image = tf.placeholder(tf.float32, [None, 28, 28])
+    input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
+        'image': image,
+    })
+    mnist_classifier.export_savedmodel(FLAGS.export_dir, input_fn)
+
+
+class MNISTArgParser(argparse.ArgumentParser):
+
+  def __init__(self):
+    super(MNISTArgParser, self).__init__()
+
+    self.add_argument(
+        '--multi_gpu', action='store_true',
+        help='If set, run across all available GPUs.')
+    self.add_argument(
+        '--batch_size',
+        type=int,
+        default=100,
+        help='Number of images to process in a batch (ie. 100)')
+    self.add_argument(
+        '--data_dir',
+        type=str,
+        default=os.environ['PIPELINE_INPUT_PATH'],
+        help='Path to directory containing the MNIST dataset')
+    self.add_argument(
+        '--model_dir',
+        type=str,
+        default=os.environ['PIPELINE_OUTPUT_PATH'],
+        help='The directory where the model will be stored.')
+    self.add_argument(
+        '--train_epochs',
+        type=int,
+        default=1,
+        help='Number of epochs to train (ie. 20).')
+    self.add_argument(
+        '--data_format',
+        type=str,
+        default=None,
+        choices=['channels_first', 'channels_last'],
+        help='A flag to override the data format used in the model. '
+        'channels_first provides a performance boost on GPU but is not always '
+        'compatible with CPU. If left unspecified, the data format will be '
+        'chosen automatically based on whether TensorFlow was built for CPU or '
+        'GPU.')
+    self.add_argument(
+        '--export_dir',
+        type=str,
+        default=os.environ['PIPELINE_OUTPUT_PATH'],
+        help='The directory where the exported SavedModel will be stored.')
+
+
+if __name__ == '__main__':
+  parser = MNISTArgParser()
+  tf.logging.set_verbosity(tf.logging.INFO)
+  FLAGS, unparsed = parser.parse_known_args()
+  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
