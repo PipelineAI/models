@@ -1,0 +1,5 @@
+pipeline_tfserving/checkpoint
+pipeline_tfserving/eval/
+pipeline_tfserving/events.*
+pipeline_tfserving/graph.pbtxt
+pipeline_tfserving/model.ckpt*
