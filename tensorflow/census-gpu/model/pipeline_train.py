@@ -212,7 +212,7 @@ if __name__ == '__main__':
       # Note:  For now, we are calcuating the version number from the current timestamp
       # TODO:  Check OUT get_timestamped_export_dir() from https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/learn/python/learn/utils/saved_model_export_utils.py
       run_config=tf.contrib.learn.RunConfig(model_dir=os.path.join(os.environ['PIPELINE_OUTPUT_PATH'], 
-                                                                   datetime.now().strftime("%s"))),
+                                                                   'pipeline_tfserving/0')),
 # Note:  The following is throwing this error:
 #    return model_dir and model_dir.startswith("gs://")
 #TypeError: startswith first arg must be bytes or a tuple of bytes, not str
