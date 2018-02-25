@@ -251,7 +251,7 @@ class MNISTArgParser(argparse.ArgumentParser):
     self.add_argument(
         '--export_dir',
         type=str,
-        default=os.environ['PIPELINE_OUTPUT_PATH'],
+        default='%s/pipeline_tfserving/0' % os.environ['PIPELINE_OUTPUT_PATH'],
         help='The directory where the exported SavedModel will be stored.')
 
 
