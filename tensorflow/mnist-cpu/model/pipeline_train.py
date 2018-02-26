@@ -1,4 +1,4 @@
-#  Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+#  2017 The TensorFlow Authors. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -82,6 +82,11 @@ def model_fn(features, labels, mode, params):
   if isinstance(image, dict):
     image = features['image']
 
+
+  print('**MODE: %s**' % mode)
+  mode = tf.estimator.ModeKeys.TRAIN
+  print('**MODE: %s**' % mode)
+
   if mode == tf.estimator.ModeKeys.PREDICT:
     logits = model(image, training=False)
     predictions = {
@@ -151,7 +156,7 @@ def validate_batch_size_for_multi_gpu(batch_size):
       ).format(num_gpus, batch_size, batch_size - remainder)
     raise ValueError(err)
 
-
+# TODO:  Convert this to a distributed model using Estimator API, Experiment API, similar to census-cpu
 def main(unused_argv):
   model_function = model_fn
 
@@ -168,13 +173,19 @@ def main(unused_argv):
   if data_format is None:
     data_format = ('channels_first'
                    if tf.test.is_built_with_cuda() else 'channels_last')
+
+  #run_config=tf.estimator.RunConfig(model_dir=os.path.join(os.environ['PIPELINE_OUTPUT_PATH'],
+  #                                                            'pipeline_tfserving/0')),
+
   mnist_classifier = tf.estimator.Estimator(
       model_fn=model_function,
       model_dir=FLAGS.model_dir,
       params={
           'data_format': data_format,
           'multi_gpu': FLAGS.multi_gpu
-      })
+      },
+  ) 
+  #    config=run_config)
 
   # Train the model
   def train_input_fn():

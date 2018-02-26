@@ -223,5 +223,3 @@ if __name__ == '__main__':
   )
 
 # TODO:  Used Estimator.export_savedmodel or saved_model_export_utils.export_fn(estimator, export_dir_base, checkpoint_path)
-
-
