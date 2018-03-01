@@ -56,6 +56,9 @@ def _transform_request(request: bytes) -> dict:
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
     request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
+#    request_np = np.rot90(request_np)
+#    request_np = np.flipud(request_np)
+
     return {'image': request_np}
 
 
