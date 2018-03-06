@@ -10,7 +10,7 @@ import tensorflow as tf
 
 import requests
 from PIL import Image
-from io import BytesIO
+from io import StringIO, BytesIO
 
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
@@ -67,31 +67,27 @@ def _transform_request(request: bytes) -> dict:
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
     
-    image_url = request_json['image_url']
+#    image_url = request_json['image_url']
+#    image = Image.open(requests.get(image_url, stream=True).raw)
 
-    image_response = requests.get(image_url, stream=True)
-    if image_response.status_code == 200:
-#        image_bytes = image_response.read()  #BytesIO(image_response.content)
-#        image = Image.open(image_bytes)
+    image_file_path = '%s/inception/cropped_panda.jpg' % os.environ['PIPELINE_MODEL_PATH']
+    with open(image_file_path, 'rb') as f:
+        image = f.read()
 
-        #image_file_path = './inception/cropped_panda.jpg' 
-        #with open(image_file_path, 'rb') as f:
-        #    image = f.read()
-#        image.show()
+    image_tensor = tf.make_tensor_proto(image)
+                                        shape=[1])
 
-#        with open(path, 'wb') as f:
-#            for chunk in r.iter_content(1024):
-#                f.write(chunk)
-
-        image = Image.open(BytesIO(image_response.content))
-        image_tensor = tf.make_tensor_proto(image)
-                                            #shape=[1])
-
-        return {"images": image_tensor}
+    return {"images": image_tensor}
 
 
 def _transform_response(response: dict) -> json:
     # Convert from tf.tensor, np.array, etc. to bytes
-    pass
+    class_list = response['classes'].tolist()[0]
+    class_list_str = [clazz.decode('utf-8') for clazz in class_list]
+    score_list = response['scores'].tolist()[0]
 
-predict(b'{"image_url": "https://avatars1.githubusercontent.com/u/1438064?s=460&v=4"}')
+    return {"classes": class_list_str, 
+           "scores": score_list}
+
+
+#predict(b'{"image_url": "https://avatars1.githubusercontent.com/u/1438064?s=460&v=4"}')
