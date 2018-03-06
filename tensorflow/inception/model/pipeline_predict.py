@@ -87,7 +87,7 @@ def _transform_response(response: dict) -> json:
     score_list = response['scores'].tolist()[0]
 
     return {"classes": class_list_str, 
-           "scores": score_list}
+            "scores": score_list}
 
 
 #predict(b'{"image_url": "https://avatars1.githubusercontent.com/u/1438064?s=460&v=4"}')
