@@ -5,4 +5,4 @@ dependencies:
   - torchvision
   - cuda90
   - pip:
-    - pipeline-runtime==1.0.6
+    - pipeline-runtime==1.0.7

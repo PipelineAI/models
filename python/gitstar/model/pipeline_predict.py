@@ -19,7 +19,9 @@ _model_tag = os.environ['PIPELINE_MODEL_TAG']
 _labels= {'model_runtime': 'python',
           'model_type': 'python', 
           'model_name': 'gitstar',
-          'model_tag': _model_tag}
+          'model_tag': _model_tag,
+          'model_chip': 'cpu'
+         }
 
 _stream_url = 'http://stream-gitstar-%s:8082' % _model_tag 
 _stream_url = _stream_url.rstrip('/')

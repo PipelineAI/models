@@ -14,13 +14,16 @@ _logger_stream_handler = logging.StreamHandler()
 _logger_stream_handler.setLevel(logging.INFO)
 _logger.addHandler(_logger_stream_handler)
 
+
 __all__ = ['predict']
 
-# Performance monitors, a-la prometheus...
+
 _labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
           'model_type': os.environ['PIPELINE_MODEL_TYPE'],
           'model_name': os.environ['PIPELINE_MODEL_NAME'],
-          'model_tag': os.environ['PIPELINE_MODEL_TAG']}
+          'model_tag': os.environ['PIPELINE_MODEL_TAG'],
+          'model_chip': os.environ['PIPELINE_MODEL_CHIP'],
+         }
 
 
 def _initialize_upon_import() -> TensorFlowServingModel:
@@ -30,7 +33,8 @@ def _initialize_upon_import() -> TensorFlowServingModel:
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name=os.environ['PIPELINE_MODEL_NAME'],
-                                  timeout=100)
+                                  model_signature_name=None,
+                                  timeout_seconds=10.0)
 
 
 _model = _initialize_upon_import()
