@@ -1,7 +1,9 @@
 dependencies:
   - pip=9.0.1
   - python=3.6.1=2
+  - openssl=1.0.2l=0
   - pip:
     - pipeline-runtime==1.0.8
     - requests==2.18.4
     - cli-pipeline==1.5.96
+    - slackclient==1.1.3
