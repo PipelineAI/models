@@ -7,6 +7,8 @@ from pipeline_model import TensorFlowServingModel
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
 
+import tensorflow as tf
+
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
 _logger_stream_handler = logging.StreamHandler()

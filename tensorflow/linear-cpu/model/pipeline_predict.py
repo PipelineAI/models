@@ -7,6 +7,7 @@ from pipeline_model import TensorFlowServingModel
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
 from io import StringIO 
+import tensorflow as tf
 
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
@@ -53,7 +54,9 @@ def predict(request: bytes) -> bytes:
 def _transform_request(request: bytes) -> dict:
     request_str = StringIO(request.decode('utf-8'))
     request_np = np.loadtxt(request_str, delimiter=',')
-    return {'price': request_np[:,0], 'inventory': request_np[:,1]}   
+    price_tensor = tf.make_tensor_proto(request_np[:,0], dtype=tf.float32)
+    inventory_tensor = tf.make_tensor_proto(request_np[:,1], dtype=tf.float32)
+    return {"price": price_tensor, "inventory": inventory_tensor}   
     
 
 @monitor(labels=_labels, name="transform_response")

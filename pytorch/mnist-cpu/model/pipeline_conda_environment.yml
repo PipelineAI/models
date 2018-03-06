@@ -4,4 +4,4 @@ dependencies:
   - pytorch-cpu
   - torchvision
   - pip:
-    - pipeline-runtime==1.0.7
+    - pipeline-runtime==1.0.8

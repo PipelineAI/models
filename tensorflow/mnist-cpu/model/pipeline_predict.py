@@ -7,6 +7,8 @@ from pipeline_model import TensorFlowServingModel
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
 
+import tensorflow as tf
+
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
 _logger_stream_handler = logging.StreamHandler()
@@ -59,11 +61,11 @@ def _transform_request(request: bytes) -> dict:
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
     request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
-#    request_np = np.rot90(request_np)
-#    request_np = np.flipud(request_np)
-
-    return {'image': request_np}
+    image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
+    return {"image": image_tensor}
 
 
 def _transform_response(response: dict) -> json:
-    return json.dumps({'classes': response['classes'].tolist(), 'probabilities': response['probabilities'].tolist()})
+    return json.dumps({"classes": response['classes'].tolist(), 
+                       "probabilities": response['probabilities'].tolist(),
+                      })
