@@ -1,5 +1,5 @@
 import os
-import numpy as np
+#import numpy as np
 import json
 import logging
 
@@ -74,7 +74,7 @@ def _transform_request(request: bytes) -> dict:
     with open(image_file_path, 'rb') as f:
         image = f.read()
 
-    image_tensor = tf.make_tensor_proto(image)
+    image_tensor = tf.make_tensor_proto(image,
                                         shape=[1])
 
     return {"images": image_tensor}

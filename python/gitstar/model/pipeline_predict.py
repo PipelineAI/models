@@ -2,15 +2,10 @@ import os
 import json
 import logging
 import requests
+import urllib
 
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
-
-from slackclient import SlackClient
-
-#_slack_token = os.environ["SLACK_API_TOKEN"]
-#_slack_token = ''
-_sc = SlackClient(_slack_token)
 
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
@@ -34,11 +29,13 @@ _stream_url = _stream_url.rstrip('/')
 
 _stream_topic = 'gitstar-%s-input' % _model_tag
 
-_endpoint_url = '%s/topics/%s' % (_stream_url, _stream_topic)
-_endpoint_url = _endpoint_url.rstrip('/')
+_stream_endpoint_url = '%s/topics/%s' % (_stream_url, _stream_topic)
+_stream_endpoint_url = _stream_endpoint_url.rstrip('/')
 
-_accept_and_content_type_headers = {"Accept": "application/vnd.kafka.v2+json",
-                                    "Content-Type": "application/vnd.kafka.json.v2+json"}
+_stream_accept_and_content_type_headers = {"Accept": "application/vnd.kafka.v2+json",
+                                           "Content-Type": "application/vnd.kafka.json.v2+json"}
+
+_slack_url = 'http://hooks.slack.com:443/services/T6QHWMRD4/B9KNAA0BS/dsglc5SFARz3hISU4pDlAms3'
 
 @log(labels=_labels, logger=_logger)
 def predict(request: bytes) -> bytes:
@@ -46,19 +43,28 @@ def predict(request: bytes) -> bytes:
 
         request_str = request.decode('utf-8')
 
-        body = '{"records": [{"value":%s}]}' % request_str
+        stream_body = '{"records": [{"value":%s}]}' % request_str
 
-        response = requests.post(url=_endpoint_url,
-                                 headers=_accept_and_content_type_headers,
-                                 data=body.encode('utf-8'),
+        response = requests.post(url=_stream_endpoint_url,
+                                 headers=_stream_accept_and_content_type_headers,
+                                 data=stream_body.encode('utf-8'),
                                  timeout=30)
 
-        _sc.api_call(
-          "chat.postMessage",
-          channel="G9L5CFPHD",
-          text=response.text
-        )
+        cmd = 'curl -X POST --data-urlencode "payload={\\"unfurl_links\\": true, \\"channel\\": \\"#demo-community\\", \\"username\\": \\"pipelineai_bot\\", \\"text\\": \\"%s\\"}" http://hooks.slack.com:443/services/T6QHWMRD4/B9KNAA0BS/dsglc5SFARz3hISU4pDlAms3' % request_str
+        print(cmd)
 
-        return {'response': response.text}
+        import subprocess
+        subprocess.call(cmd, shell=True)
 
-#predict(b'{"blah": "blah"}')
+#        if slack_response.status_code != 200:
+#            raise ValueError(
+#                'Request to slack returned an error %s, the response is:\n%s'
+#                % (slack_response.status_code, slack_response.text)
+#        )
+
+        return {'response': 'OK'}
+
+# TODO:  create _transform_request(), _transform_response()
+
+#predict(b'{"blah": "https://avatars1.githubusercontent.com/u/1438064?s=460&v=4"}')
+#predict(b'{"image_url": "https://avatars1.githubusercontent.com/u/1438064?s=460%26v=4"}')
