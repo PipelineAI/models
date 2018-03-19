@@ -1,5 +1,4 @@
 import os
-#import numpy as np
 import json
 import logging
 
@@ -70,21 +69,47 @@ def _transform_request(request: bytes) -> dict:
 #    image_url = request_json['image_url']
 #    image = Image.open(requests.get(image_url, stream=True).raw)
 
-    image_file_path = '%s/inception/cropped_panda.jpg' % os.environ['PIPELINE_MODEL_PATH']
+    image_response = requests.get(request_json['image_url'])
+    with BytesIO(image_response.content) as f:
+        with Image.open(f) as img:
+            print(img)
+#            image = img
+
+    image_file_path = '%s/images/fregly_avatar.jpg' % os.environ['PIPELINE_INPUT_PATH']
     with open(image_file_path, 'rb') as f:
         image = f.read()
 
-    image_tensor = tf.make_tensor_proto(image,
-                                        shape=[1])
+# TODO:  https://towardsdatascience.com/tensorflow-serving-client-make-it-slimmer-and-faster-b3e5f71208fb
+#        https://github.com/Vetal1977/tf_serving_example/tree/master/tensorflow/core/framework
+    #image_tensor = tf.make_tensor_proto(image)
+    #                                    shape=[1])
+    # NEW STUFF - pipeline_model==1.10+
+    # Replacement for tf.make_tensor_proto(image, shape=[1])
+    # Create TensorProto object for a request
+    #
+    #from tensorflow.core.framework import tensor_pb2
+    #from tensorflow.core.framework import tensor_shape_pb2
+    #from tensorflow.core.framework import types_pb2
+    #
+    #dims = [tensor_shape_pb2.TensorShapeProto.Dim(size=1)]
+    #tensor_shape_proto = tensor_shape_pb2.TensorShapeProto(dim=dims)
+    #image_tensor_proto = tensor_pb2.TensorProto(dtype=types_pb2.DT_STRING,
+    #                                            tensor_shape=tensor_shape_proto,
+    #                                            string_val=[image])    
+    #
+    image_tensor_proto = tf.make_tensor_proto(image,
+                                              shape=[1])
 
-    return {"images": image_tensor}
+    return {"images": image_tensor_proto}
 
 
 def _transform_response(response: dict) -> json:
     # Convert from tf.tensor, np.array, etc. to bytes
-    class_list = response['classes'].tolist()[0]
+
+    # TODO:  Optimize this to avoid tf.make_ndarray similar to _transform_request() above
+    class_list = tf.make_ndarray(response['classes']).tolist()[0]
     class_list_str = [clazz.decode('utf-8') for clazz in class_list]
-    score_list = response['scores'].tolist()[0]
+    score_list = tf.make_ndarray(response['scores']).tolist()[0]
 
     return {"classes": class_list_str, 
             "scores": score_list}
