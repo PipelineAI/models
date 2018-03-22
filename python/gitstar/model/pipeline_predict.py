@@ -35,22 +35,31 @@ _stream_endpoint_url = _stream_endpoint_url.rstrip('/')
 _stream_accept_and_content_type_headers = {"Accept": "application/vnd.kafka.v2+json",
                                            "Content-Type": "application/vnd.kafka.json.v2+json"}
 
-_slack_url = 'http://hooks.slack.com:443/services/T6QHWMRD4/B9KNAA0BS/dsglc5SFARz3hISU4pDlAms3'
+#_slack_url = 'http://hooks.slack.com:443/services/T6QHWMRD4/B9KNAA0BS/dsglc5SFARz3hISU4pDlAms3'
+#_slack_url = "curl -X POST --data 'token=xoxa-228608739446-303548610531-303548610803-376b8dcda37e59fc571c660eb0fb9c1d&channel=%40cfregly&text=%s' https://slack.com//api/chat.postMessage"
 
 @log(labels=_labels, logger=_logger)
 def predict(request: bytes) -> bytes:
     with monitor(labels=_labels, name="predict"):
 
         request_str = request.decode('utf-8')
+        print(request_str)
 
-        stream_body = '{"records": [{"value":%s}]}' % request_str
+        avatar_url = json.loads(request_str)['sender']['avatar_url']
+        print(avatar_url)
+        
+#        stream_body = '{"records": [{"value":%s}]}' % request_str
+#        response = requests.post(url=_stream_endpoint_url,
+#                                 headers=_stream_accept_and_content_type_headers,
+#                                 data=stream_body.encode('utf-8'),
+#                                 timeout=30)
 
-        response = requests.post(url=_stream_endpoint_url,
-                                 headers=_stream_accept_and_content_type_headers,
-                                 data=stream_body.encode('utf-8'),
-                                 timeout=30)
+        #import urllib
+        #avatar_url = urllib.parse.quote(avatar_url)
 
-        cmd = 'curl -X POST --data-urlencode "payload={\\"unfurl_links\\": true, \\"channel\\": \\"#demo-community\\", \\"username\\": \\"pipelineai_bot\\", \\"text\\": \\"%s\\"}" http://hooks.slack.com:443/services/T6QHWMRD4/B9KNAA0BS/dsglc5SFARz3hISU4pDlAms3' % request_str
+        cmd = 'curl -X POST --data "token=xoxa-228608739446-303548610531-303548610803-376b8dcda37e59fc571c660eb0fb9c1d&channel=demo-community&text=%s" http://slack.com:443/api/chat.postMessage' % avatar_url
+
+#        cmd = 'curl -X POST --data-urlencode "payload={\\"unfurl_links\\": true, \\"channel\\": \\"#demo-community\\", \\"username\\": \\"pipelineai_bot\\", \\"text\\": \\"%s\\"}" http://hooks.slack.com:443/services/T6QHWMRD4/B9KNAA0BS/dsglc5SFARz3hISU4pDlAms3' % avatar_url 
         print(cmd)
 
         import subprocess

@@ -70,12 +70,21 @@ def _transform_request(request: bytes) -> dict:
 #    image = Image.open(requests.get(image_url, stream=True).raw)
 
     image_response = requests.get(request_json['image_url'])
-    with BytesIO(image_response.content) as f:
-        with Image.open(f) as img:
-            print(img)
+#    with BytesIO(image_response.content) as f:
+#        with Image.open(f) as img:
+#            print(img)
 #            image = img
 
-    image_file_path = '%s/images/fregly_avatar.jpg' % os.environ['PIPELINE_INPUT_PATH']
+#    image_file_path = '%s/images/fregly_avatar.jpg' % os.environ['PIPELINE_INPUT_PATH']
+
+    from datetime import datetime
+    version = int(datetime.now().strftime("%s"))
+
+    image_file_path = 'blah-%s.jpg' % version
+
+    with open(image_file_path, 'wb') as f:
+        f.write(image_response.content)
+
     with open(image_file_path, 'rb') as f:
         image = f.read()
 
