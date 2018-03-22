@@ -6,6 +6,7 @@ capture_tpu_profile \
     --tpu_name=$TPU_NAME \
 	--logdir=$MODEL_DIR &
 
+# gcloud compute ssh tpu-demo-vm -- -L 6006:localhost:6006
 tensorboard \
     --logdir=$MODEL_DIR &
 
