@@ -4,6 +4,6 @@ dependencies:
   - pillow==5.0.0
   - pip:
     - grpcio>=1.0
-    - tensorflow==1.7.0rc0
+    - tensorflow==1.7.0
     - requests==2.18.4
     - pipeline-runtime==1.0.8
