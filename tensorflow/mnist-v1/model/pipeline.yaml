@@ -52,7 +52,7 @@
             - model.ckpt.*
             - checkpoint
 
-- model: mnist 
+- model: mnist-v1
   description: softmax version of MNIST
   extends: mnist-base
   params:
