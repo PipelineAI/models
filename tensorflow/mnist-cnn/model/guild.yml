@@ -66,6 +66,11 @@
   params:
     model_desc: cnn 
     train_cmd: pipeline_train 
+    model_name: mnistcnn
+    model_tag: tensorflowtfservingcpu
+    model_type: tensorflow
+    model_runtime: tfserving
+    model_chip: cpu
 
 # -------------------------------------------------------------------
 # mnist-samples
@@ -82,4 +87,4 @@
           description: Number of images to generate
           default: 100
           arg-name: sample-count
-      requires: mnist/dataset
+      requires: mt/dataset
