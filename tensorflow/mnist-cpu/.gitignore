@@ -1,8 +1,0 @@
-checkpoint/
-runs/
-samples/
-export-*/
-t10k-labels*/
-t10k-images*/
-train-labels*/
-train-images*/
