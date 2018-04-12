@@ -38,10 +38,10 @@ class Model(object):
         https://www.tensorflow.org/performance/performance_guide#data_formats
     """
     if data_format == 'channels_first':
-      self._input_shape = [-1, 1, 28, 28]
+      self._input_shape = [-1, 1, 1, 784]
     else:
       assert data_format == 'channels_last'
-      self._input_shape = [-1, 28, 28, 1]
+      self._input_shape = [-1, 1, 784, 1]
 
     self.conv1 = tf.layers.Conv2D(
         32, 5, padding='same', data_format=data_format, activation=tf.nn.relu)
@@ -80,7 +80,7 @@ def model_fn(features, labels, mode, params):
   model = Model(params['data_format'])
   image = features
   if isinstance(image, dict):
-    image = features['image']
+    image = features['inputs']
 
 
   print('**MODE: %s**' % mode)
@@ -214,9 +214,9 @@ def main(unused_argv):
 
   # Export the model
   if FLAGS.export_dir is not None:
-    image = tf.placeholder(tf.float32, [None, 28, 28])
+    image = tf.placeholder(tf.float32, [None, 1, 784])
     input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
-        'image': image,
+        'inputs': image,
     })
     mnist_classifier.export_savedmodel(FLAGS.export_dir, input_fn)
 
@@ -232,17 +232,19 @@ class MNISTArgParser(argparse.ArgumentParser):
     self.add_argument(
         '--batch_size',
         type=int,
-        default=100,
+        default=1024,
         help='Number of images to process in a batch (ie. 100)')
     self.add_argument(
         '--data_dir',
         type=str,
-        default=os.environ['PIPELINE_INPUT_PATH'],
+        default='../input/training',
+#        default=os.environ['PIPELINE_INPUT_PATH'],
         help='Path to directory containing the MNIST dataset')
     self.add_argument(
         '--model_dir',
         type=str,
-        default=os.environ['PIPELINE_OUTPUT_PATH'],
+#        default=os.environ['PIPELINE_OUTPUT_PATH'],
+        default='../output/training',
         help='The directory where the model will be stored.')
     self.add_argument(
         '--train_epochs',
@@ -262,7 +264,8 @@ class MNISTArgParser(argparse.ArgumentParser):
     self.add_argument(
         '--export_dir',
         type=str,
-        default='%s/pipeline_tfserving/0' % os.environ['PIPELINE_OUTPUT_PATH'],
+        default='./pipeline_tfserving/0',
+#        default='%s/pipeline_tfserving/0' % os.environ['PIPELINE_OUTPUT_PATH'],
         help='The directory where the exported SavedModel will be stored.')
 
 

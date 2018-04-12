@@ -165,7 +165,7 @@ def checkpoint(step):
 def export_saved_model():
     print("Exporting saved model")
     builder = tf.saved_model.builder.SavedModelBuilder(
-        FLAGS.run_dir + "/export")
+        FLAGS.run_dir + "/0")
     serve_signature = tf.saved_model.signature_def_utils.build_signature_def(
         inputs={
             "inputs": tf.saved_model.utils.build_tensor_info(x)
