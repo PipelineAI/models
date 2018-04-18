@@ -36,13 +36,13 @@
             - model.ckpt.*
             - checkpoint
 
-- model: mnist-v2
+- model: mnist
   description: cnn version of MNIST
   extends: mnist-base
   params:
     model_desc: cnn version of MNIST
-    train_cmd: pipeline_train 
-    model_name: mnist 
+    train_cmd: pipeline_train
+    model_name: mnist
     model_tag: v2
     model_type: tensorflow
     model_runtime: tfserving

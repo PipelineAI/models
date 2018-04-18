@@ -37,12 +37,12 @@
             - model.ckpt.*
             - checkpoint
 
-- model: mnist-v1 
+- model: mnist
   description: softmax version of MNIST
   extends: base
   params:
     model_desc: softmax regression
-    train_cmd: pipeline_train 
+    train_cmd: pipeline_train
     model_name: mnist
     model_tag: v1
     model_type: tensorflow
