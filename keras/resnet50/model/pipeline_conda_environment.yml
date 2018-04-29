@@ -12,6 +12,6 @@ dependencies:
   - wheel=0.29.0
   - h5py=2.7.0
   - pip:  
-    - keras==2.1.5
-    - tensorflow==1.7.0
+    - keras==2.1.6
+    - tensorflow==1.8.0
     - pipeline-runtime==1.0.8
