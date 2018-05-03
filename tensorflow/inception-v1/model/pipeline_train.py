@@ -202,7 +202,7 @@ def preprocess_image(image_buffer):
   return image
 
 
-def main(unused_argv=None):
+def main(unused_argv=None, *args, **kwargs):
   export()
 
 
