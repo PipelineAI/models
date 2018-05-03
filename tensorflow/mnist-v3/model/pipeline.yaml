@@ -53,10 +53,10 @@
             - checkpoint
 
 - model: mnist
-  description: softmax version of MNIST
+  description: MNIST
   extends: mnist-base
   params:
-    model_desc: softmax regression
+    model_desc: mnist 
     train_cmd: pipeline_train
     model_name: mnist
     model_tag: v3
