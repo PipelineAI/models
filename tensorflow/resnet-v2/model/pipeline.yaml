@@ -1,0 +1,51 @@
+- package: resnet 
+  version: 1.5.0
+  description: digits
+  url: https://github.com/PipelineAI/models
+  author: PipelineAI
+  author-email: contact@pipeline.ai
+  license: Apache 2.0
+  tags: [resnet, images, model]
+
+# -------------------------------------------------------------------
+# mnist-base (shared config)
+# -------------------------------------------------------------------
+
+- config: resnet-base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train --tpu tpu-us-central1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1 .'
+      flags:
+        batch-size:
+          description: Number of images to include in a training batch
+          default: 100
+        epochs:
+          description: Number of epochs to train
+          default: 5
+
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train --test .'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+
+- model: resnet 
+  description: official mnist
+  extends: resnet-base
+  params:
+    model_desc: resnet
+    train_cmd: pipeline_train
+    model_name: resnet
+    model_tag: v1
+    model_type: tensorflow
+    model_runtime: tfserving
+    model_chip: cpu

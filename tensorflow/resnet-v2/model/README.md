@@ -1,4 +1,4 @@
-# ResNet-50 on TPU
+# ResNet-50 using BFloat16 on TPU
 
 ## Prerequisites
 
@@ -120,7 +120,9 @@ and `tf.data.Dataset` for the actual pipeline. Then, simply replace the current
 
 ### Benchmarking the training speed
 
-Benchmarking code for [DAWNBench](http://dawn.cs.stanford.edu/benchmark/) can be
-found under the `benchmark/` subdirectory. The benchmarking code imports the
-same models, inputs, and training regimes but includes some extra checkpointing
-and evaluation.
+When benchmarking the training speed, set `--steps_per_eval` to be equal to
+`--train_steps` so that all the training completes before evaluation begins. The
+steps per second and images per second are logged during training. Total
+training time excluding evaluation but including the time it takes to compile
+and initialize the graph is also logged and can be explicitly calculated by
+subtracting the start timestamp from the end timestamp on the logs.
