@@ -1,0 +1,47 @@
+- package: linear
+  version: 1.5.0
+  description: linear regression
+  url: https://github.com/PipelineAI/models
+  author: PipelineAI
+  author-email: contact@pipeline.ai
+  license: Apache 2.0
+  tags: [linear, lr, model]
+# -------------------------------------------------------------------
+# mnist-base (shared config)
+# -------------------------------------------------------------------
+- config: base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train .'
+      flags:
+        batch-size:
+          description: Number of images to include in a training batch
+          default: 100
+        epochs:
+          description: Number of epochs to train
+          default: 5
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train --test .'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+- model: mnist
+  description: linear regression
+  extends: base
+  params:
+    model_desc: linear
+    train_cmd: pipeline_train
+    model_name: linear
+    model_tag: v1
+    model_type: tensorflow
+    model_runtime: tfserving
+    model_chip: cpu
