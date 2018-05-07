@@ -1,0 +1,51 @@
+- package: airbnb 
+  version: v1 
+  author-email: 
+  tags: [airbnb, v1, model]
+
+# -------------------------------------------------------------------
+# base (shared config)
+# -------------------------------------------------------------------
+
+-config: base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train'
+      flags:
+        batch-size:
+          description: Number of images to include in a training batch
+          default: 1
+        data-dir:
+          description: Training dataset
+          default: ../input/training
+        model-dir:
+          description: Output directory
+          default: ./checkpoint
+        train-steps:
+          description: Training steps
+          default: 1
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+
+- model: airbnb
+  extends: base
+  params:
+    model_desc: airbnb 
+    train_cmd: pipeline_train 
+    model_name: airbnb 
+    model_tag: v1
+    model_type: java 
+    model_runtime: java 
+    model_chip: cpu 

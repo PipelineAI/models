@@ -1,11 +1,11 @@
-- package: zscore
+- package: mnist 
   version: 1.5.0
-  description: zscore python scoring model
+  description: mnist pytorch
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [zscore, images, model]
+  tags: [mnist, images, model]
 
 # -------------------------------------------------------------------
 # base config
@@ -30,13 +30,13 @@
             - model.ckpt.*
             - checkpoint
 
-- model: zscore 
-  description: zscore
+- model: mnist 
+  description: mnist
   extends: base
   params:
-    model_desc: softmax regression
+    model_desc: pytorch mnist 
     train_cmd: pipeline_train
-    model_name: zscore
+    model_name: mnist
     model_tag: v1
     model_type: python 
     model_runtime: python 

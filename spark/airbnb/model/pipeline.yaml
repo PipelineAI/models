@@ -1,11 +1,11 @@
-- package: zscore
+- package: airbnb 
   version: 1.5.0
-  description: zscore python scoring model
+  description: airbnb pytorch
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [zscore, images, model]
+  tags: [airbnb, model]
 
 # -------------------------------------------------------------------
 # base config
@@ -30,13 +30,13 @@
             - model.ckpt.*
             - checkpoint
 
-- model: zscore 
-  description: zscore
+- model: airbnb 
+  description: airbnb
   extends: base
   params:
-    model_desc: softmax regression
+    model_desc: airbnb
     train_cmd: pipeline_train
-    model_name: zscore
+    model_name: airbnb
     model_tag: v1
     model_type: python 
     model_runtime: python 

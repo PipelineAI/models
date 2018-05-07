@@ -1,11 +1,11 @@
-- package: zscore
+- package: linear 
   version: 1.5.0
-  description: zscore python scoring model
+  description: mnist pytorch
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [zscore, images, model]
+  tags: [linear, model]
 
 # -------------------------------------------------------------------
 # base config
@@ -30,14 +30,14 @@
             - model.ckpt.*
             - checkpoint
 
-- model: zscore 
-  description: zscore
+- model: linear 
+  description: linear 
   extends: base
   params:
-    model_desc: softmax regression
+    model_desc: scikit linear 
     train_cmd: pipeline_train
-    model_name: zscore
-    model_tag: v1
+    model_name: scikit
+    model_tag: linear 
     model_type: python 
     model_runtime: python 
     model_chip: cpu

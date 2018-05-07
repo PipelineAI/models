@@ -1,24 +1,29 @@
-- package: zscore
+- package: mnist 
   version: 1.5.0
-  description: zscore python scoring model
+  description: mnist
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [zscore, images, model]
-
+  tags: [mnist, images, model]
 # -------------------------------------------------------------------
-# base config
+# mnist-base (shared config)
 # -------------------------------------------------------------------
-
 - config: base
   operations:
     train:
       description: 'Train'
-      cmd: 'pipeline_train'
+      cmd: 'pipeline_train .'
+      flags:
+        batch-size:
+          description: Number of images to include in a training batch
+          default: 100
+        epochs:
+          description: Number of epochs to train
+          default: 5
     evaluate:
       description: 'Evaluate'
-      cmd: 'pipeline_train'
+      cmd: 'pipeline_train --test .'
       requires:
         - trained-model
   resources:
@@ -29,15 +34,14 @@
           select:
             - model.ckpt.*
             - checkpoint
-
-- model: zscore 
-  description: zscore
+- model: mnist
+  description: mnist 
   extends: base
   params:
-    model_desc: softmax regression
+    model_desc: mnist 
     train_cmd: pipeline_train
-    model_name: zscore
-    model_tag: v1
-    model_type: python 
-    model_runtime: python 
-    model_chip: cpu
+    model_name: mnist
+    model_tag: gpu
+    model_type: tensorflow
+    model_runtime: tfserving
+    model_chip: gpu

@@ -1,11 +1,11 @@
-- package: zscore
+- package: census 
   version: 1.5.0
-  description: zscore python scoring model
+  description: census
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [zscore, images, model]
+  tags: [census, model]
 
 # -------------------------------------------------------------------
 # base config
@@ -16,6 +16,13 @@
     train:
       description: 'Train'
       cmd: 'pipeline_train'
+      flags:
+        batch-size:
+          description: Number of images to include in a training batch
+          default: 100
+        epochs:
+          description: Number of epochs to train
+          default: 5
     evaluate:
       description: 'Evaluate'
       cmd: 'pipeline_train'
@@ -30,14 +37,14 @@
             - model.ckpt.*
             - checkpoint
 
-- model: zscore 
-  description: zscore
+- model: census
+  description: softmax version of MNIST
   extends: base
   params:
-    model_desc: softmax regression
+    model_desc: cool census model 
     train_cmd: pipeline_train
-    model_name: zscore
+    model_name: census 
     model_tag: v1
-    model_type: python 
-    model_runtime: python 
+    model_type: xgboost 
+    model_runtime: jvm
     model_chip: cpu
