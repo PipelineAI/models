@@ -82,8 +82,6 @@ def model_fn(features, labels, mode, params):
   if isinstance(image, dict):
     image = features['inputs']
 
-
-  print('**MODE: %s**' % mode)
   mode = tf.estimator.ModeKeys.TRAIN
   print('**MODE: %s**' % mode)
 
