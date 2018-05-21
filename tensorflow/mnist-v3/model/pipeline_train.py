@@ -235,14 +235,14 @@ class MNISTArgParser(argparse.ArgumentParser):
     self.add_argument(
         '--data_dir',
         type=str,
-        default='../input',
-#        default=os.environ['PIPELINE_INPUT_PATH'],
+#        default='../input',
+        default=os.getenv(key='PIPELINE_INPUT_PATH', default='../input'),
         help='Path to directory containing the MNIST dataset')
     self.add_argument(
         '--model_dir',
         type=str,
-#        default=os.environ['PIPELINE_OUTPUT_PATH'],
-        default='../output',
+        default= os.getenv(key='PIPELINE_OUTPUT_PATH', default='../output'),
+#        default='../output',
         help='The directory where the model will be stored.')
     self.add_argument(
         '--train_epochs',
@@ -262,9 +262,8 @@ class MNISTArgParser(argparse.ArgumentParser):
     self.add_argument(
         '--export_dir',
         type=str,
-#        default='./pipeline_tfserving/0',
-#        default='%s/pipeline_tfserving/0' % os.environ['PIPELINE_OUTPUT_PATH'],
-        default='../output/saved_model/0',
+        default='%s/pipeline_tfserving/0' % os.getenv(key='PIPELINE_OUTPUT_PATH', default='.'),
+#        default='../output/saved_model/0',
         help='The directory where the exported SavedModel will be stored.')
 
 
