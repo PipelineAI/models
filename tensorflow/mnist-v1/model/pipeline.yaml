@@ -1,31 +1,33 @@
 - package: mnist
-  version: 1.5.0
-  description: softmax classifier for mnist digits
-  url: https://github.com/PipelineAI/models
-  author: PipelineAI
-  author-email: contact@pipeline.ai
-  license: Apache 2.0
-  tags: [mnist, images, model]
+  version: v1
+  author-email:
+  tags: [mnist, v1, model]
 
 # -------------------------------------------------------------------
-# base config
+# base (shared config)
 # -------------------------------------------------------------------
 
 - config: base
   operations:
     train:
-      description: 'Train the {{model_desc}}'
-      cmd: '{{train_cmd}} --data-dir mnist-idx-data --run-dir .'
+      description: 'Train'
+      cmd: 'pipeline_train'
       flags:
         batch-size:
           description: Number of images to include in a training batch
-          default: 100
-        epochs:
-          description: Number of epochs to train
-          default: 5
+          default: 1
+        data-dir:
+          description: Training dataset
+          default: ../input/training
+        model-dir:
+          description: Output directory
+          default: ./checkpoint
+        train-steps:
+          description: Training steps
+          default: 1
     evaluate:
-      description: 'Evaluate a trained {{model_desc}}'
-      cmd: '{{train_cmd}} --test --data-dir mnist-idx-data --run-dir .'
+      description: 'Evaluate'
+      cmd: 'pipeline_train'
       requires:
         - trained-model
   resources:
@@ -38,10 +40,9 @@
             - checkpoint
 
 - model: mnist
-  description: softmax version of MNIST
   extends: base
   params:
-    model_desc: softmax regression
+    model_desc: mnist
     train_cmd: pipeline_train
     model_name: mnist
     model_tag: v1
