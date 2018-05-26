@@ -14,8 +14,8 @@
 - config: base
   operations:
     train:
-      description: 'Train the {{model_desc}}'
-      cmd: '{{train_cmd}} --data-dir mnist-idx-data --run-dir .'
+      description: 'Train'
+      cmd: 'pipeline_train'
       flags:
         batch-size:
           description: Number of images to include in a training batch
@@ -24,8 +24,8 @@
           description: Number of epochs to train
           default: 5
     evaluate:
-      description: 'Evaluate a trained {{model_desc}}'
-      cmd: '{{train_cmd}} --test --data-dir mnist-idx-data --run-dir .'
+      description: 'Evaluate'
+      cmd: 'pipeline_train --test'
       requires:
         - trained-model
   resources:

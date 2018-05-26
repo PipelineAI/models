@@ -19,11 +19,11 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
-          'model_type': os.environ['PIPELINE_MODEL_TYPE'],
-          'model_name': os.environ['PIPELINE_MODEL_NAME'],
-          'model_tag': os.environ['PIPELINE_MODEL_TAG'],
-          'model_chip': os.environ['PIPELINE_MODEL_CHIP'],
+_labels= {'model_runtime': 'tfserving',
+          'model_type': 'tensorflow',
+          'model_name': 'mnist',
+          'model_tag': 'v2',
+          'model_chip': 'cpu',
          }
 
 
@@ -32,7 +32,7 @@ def _initialize_upon_import() -> TensorFlowServingModel:
     '''
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
-                                  model_name=os.environ['PIPELINE_MODEL_NAME'],
+                                  model_name='mnist',
                                   model_signature_name=None,
                                   timeout_seconds=10.0)
 

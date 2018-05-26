@@ -1,4 +1,7 @@
+classifier-v1/
 n/
+checkpoint/
+output/
 nohup.out
 runs/
 *.pyc

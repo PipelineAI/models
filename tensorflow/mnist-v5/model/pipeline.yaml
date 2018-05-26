@@ -15,7 +15,7 @@
   operations:
     train:
       description: 'Train'
-      cmd: 'pipeline_train --tpu tpu-us-central1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1 .'
+      cmd: 'pipeline_train --tpu tpu-us-centra1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1 --data-dir ../input/training --model_dir ./pipeline_tfserving/0 .'
       flags:
         batch-size:
           description: Number of images to include in a training batch
@@ -26,7 +26,7 @@
 
     evaluate:
       description: 'Evaluate'
-      cmd: 'pipeline_train --test .'
+      cmd: 'pipeline_train --test --data-dir ../input/training --model-dir ../output/validation .'
       requires:
         - trained-model
   resources:
