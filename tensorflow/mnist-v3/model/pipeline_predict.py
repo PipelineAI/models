@@ -27,7 +27,7 @@ _labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
          }
 
 
-def _initialize_upon_import() -> TensorFlowServingModel:
+def _initialize_upon_import(): # -> TensorFlowServingModel:
     ''' Initialize / Restore Model Object.
     '''
     return TensorFlowServingModel(host='localhost',
@@ -42,7 +42,7 @@ _model = _initialize_upon_import()
 
 
 @log(labels=_labels, logger=_logger)
-def predict(request: bytes) -> bytes:
+def predict(request): # : bytes)  -> bytes:
     '''Where the magic happens...'''
 
     with monitor(labels=_labels, name="transform_request"):
@@ -57,18 +57,15 @@ def predict(request: bytes) -> bytes:
     return transformed_response
 
 
-def _transform_request(request: bytes) -> dict:
+def _transform_request(request): # : bytes) -> dict:
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    # TODO:  Remove the reshape when we sync this with the other models (1, 784)
-    #        Don't forget to adjust pipeline_train.py
     request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
-    # TODO:  Change this to inputs when we synd with other models 
     return {"image": image_tensor}
 
 
-def _transform_response(response: dict) -> json:
+def _transform_response(response): # : dict) -> json:
     return json.dumps({"classes": response['classes'].tolist(), 
                        "probabilities": response['probabilities'].tolist(),
                       })
