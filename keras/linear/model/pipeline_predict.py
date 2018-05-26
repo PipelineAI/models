@@ -21,11 +21,12 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
-          'model_type': os.environ['PIPELINE_MODEL_TYPE'],
-          'model_name': os.environ['PIPELINE_MODEL_NAME'],
-          'model_tag': os.environ['PIPELINE_MODEL_TAG']}
-
+_labels= {'model_name': 'linear',
+          'model_tag': 'v1',
+          'model_type': 'keras',
+          'model_runtime': 'python',
+          'model_chip': 'cpu',
+         }
 
 def _initialize_upon_import(model_state_path: str) -> KerasTheanoModel:
     ''' Initialize / Restore Model Object.

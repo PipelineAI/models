@@ -1,13 +1,13 @@
-- package: resnet 
-  version: v1 
-  author-email: 
-  tag,: [resnet50, v1, keras, model]
+- package: {{ PIPELINE_MODEL_NAME }}
+  version: {{ PIPELINE_MODEL_TAG }}
+  author-email:
+  tags: [{{ PIPELINE_MODEL_NAME }}, {{ PIPELINE_MODEL_TAG }}, {{ PIPELINE_MODEL_TYPE }},  model]
 
 # -------------------------------------------------------------------
 # base (shared config)
 # -------------------------------------------------------------------
 
--config: base
+- config: base
   operations:
     train:
       description: 'Train'
@@ -20,8 +20,8 @@
           description: Training dataset
           default: ../input/training
         model-dir:
-          description: Checkpoint directory
-          default: ../checkpoint
+          description: Output directory
+          default: ./checkpoint
         train-steps:
           description: Training steps
           default: 1
@@ -39,13 +39,13 @@
             - model.ckpt.*
             - checkpoint
 
-- model: resnet50
+- model: {{ PIPELINE_MODEL_NAME }}
   extends: base
   params:
-    model_desc: resnet50
-    train_cmd: pipeline_train 
-    model_name: resnet50
-    model_tag: v1
-    model_type: keras
-    model_runtime: python 
-    model_chip: cpu
+    model_desc: {{ PIPELINE_MODEL_NAME }}
+    train_cmd: pipeline_train
+    model_name: {{ PIPELINE_MODEL_NAME }}
+    model_tag: {{ PIPELINE_MODEL_TAG }}
+    model_type: {{ PIPELINE_MODEL_TYPE }}
+    model_runtime: {{ PIPELINE_MODEL_RUNTIME }}
+    model_chip: {{ PIPELINE_MODEL_CHIP }}

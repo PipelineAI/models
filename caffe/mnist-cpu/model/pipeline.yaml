@@ -5,7 +5,7 @@
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [mnist, images, model]
+  tags: [mnist, v1, caffe, model]
 # -------------------------------------------------------------------
 # mnist-base (shared config)
 # -------------------------------------------------------------------
@@ -42,6 +42,6 @@
     train_cmd: pipeline_train
     model_name: mnist
     model_tag: cpu
-    model_type: tensorflow
-    model_runtime: tfserving
+    model_type: caffe
+    model_runtime: cpp 
     model_chip: cpu

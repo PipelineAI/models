@@ -20,10 +20,13 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'], # python
-          'model_type': os.environ['PIPELINE_MODEL_TYPE'], # pytorch
-          'model_name': os.environ['PIPELINE_MODEL_NAME'], # mnist
-          'model_tag': os.environ['PIPELINE_MODEL_TAG']} # pytorch
+_labels= {
+          'model_name': 'mnist',
+          'model_tag': 'v1'
+          'model_type': 'caffe'
+          'model_runtime': 'python',
+          'model_chip': 'cpu'
+         }
 
 
 # TODO:  This is a COPY/PASTE FROM pipeline_train.py until this is refactored
@@ -49,7 +52,7 @@ class Net(nn.Module):
 def _initialize_upon_import() -> Net:
     ''' Initialize / Restore Model Object.
     '''
-    saved_model_path = '%s/model.pth' % os.environ['PIPELINE_MODEL_PATH']
+    saved_model_path = './model.pth'%
     model = Net()
     model.load_state_dict(torch.load(saved_model_path))
     print('Loaded model from "%s": %s' % (saved_model_path, model))

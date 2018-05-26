@@ -5,7 +5,7 @@
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [mnist, images, model]
+  tags: [mnist, v1, pytorch, model]
 
 # -------------------------------------------------------------------
 # base config
@@ -34,10 +34,10 @@
   description: mnist
   extends: base
   params:
-    model_desc: pytorch mnist 
+    model_desc: mnist 
     train_cmd: pipeline_train
     model_name: mnist
     model_tag: v1
-    model_type: python 
+    model_type: pytorch 
     model_runtime: python 
     model_chip: cpu

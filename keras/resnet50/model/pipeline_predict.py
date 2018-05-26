@@ -24,8 +24,12 @@ __all__ = ['predict']
 
 
 # Performance monitors, a-la prometheus...
-_labels= {'model_type':'keras',
-          'model_name':'linear'}
+_labels= {'model_name': 'resnet50',
+          'model_name': 'v1',
+          'model_type': 'keras',
+          'model_runtime': 'python',
+          'model_chip': 'cpu',
+          }
                  
 
 def _initialize_upon_import(model_state_path: str) -> KerasTheanoModel:

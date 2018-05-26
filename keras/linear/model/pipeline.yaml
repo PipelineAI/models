@@ -1,7 +1,7 @@
 - package: linear 
   version: v1 
   author-email: 
-  tags: [linear, v1, model]
+  tags: [linear, v1, keras, model]
 
 # -------------------------------------------------------------------
 # base (shared config)
@@ -20,8 +20,8 @@
           description: Training dataset
           default: ../input/training
         model-dir:
-          description: Output directory
-          default: ./checkpoint
+          description: Checkpoint directory
+          default: ../checkpoint
         train-steps:
           description: Training steps
           default: 1
@@ -47,5 +47,5 @@
     model_name: linear
     model_tag: v1
     model_type: keras
-    model_runtime: cpu
+    model_runtime: python
     model_chip: cpu
