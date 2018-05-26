@@ -1,4 +1,8 @@
 tensorflow/classifier-v1/
+bbox-v1/
+classifier-v1/
+checkpoint/
+output/
 nohup.out
 runs/
 *.pyc

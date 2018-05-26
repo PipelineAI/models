@@ -1,6 +1,11 @@
+channels:
+  - anaconda
+  - conda-forge
+  - intel
 dependencies:
-  - pip=9.0.1
+  - pip=9.0.3
   - python=3.6
+  - intelpython3_core=2018.0.2
   - pip:
     - grpcio>=1.0
     - tensorflow==1.8.0

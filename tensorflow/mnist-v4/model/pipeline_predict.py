@@ -19,20 +19,20 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
-          'model_type': os.environ['PIPELINE_MODEL_TYPE'],
-          'model_name': os.environ['PIPELINE_MODEL_NAME'],
-          'model_tag': os.environ['PIPELINE_MODEL_TAG'],
-          'model_chip': os.environ['PIPELINE_MODEL_CHIP'],
+_labels= {'model_name': 'mnist',
+          'model_tag': 'v4',
+          'model_type': 'tensorflow',
+          'model_runtime': 'tfserving',
+          'model_chip': 'cpu',
          }
 
 
-def _initialize_upon_import() -> TensorFlowServingModel:
+def _initialize_upon_import(): # -> TensorFlowServingModel:
     ''' Initialize / Restore Model Object.
     '''
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
-                                  model_name=os.environ['PIPELINE_MODEL_NAME'],
+                                  model_name='mnist',
                                   model_signature_name=None,
                                   timeout_seconds=10.0)
 
@@ -41,8 +41,11 @@ def _initialize_upon_import() -> TensorFlowServingModel:
 _model = _initialize_upon_import()
 
 
+# Predict Schema
+#   input: bytes
+#   return: json 
 @log(labels=_labels, logger=_logger)
-def predict(request: bytes) -> bytes:
+def predict(request): 
     '''Where the magic happens...'''
 
     with monitor(labels=_labels, name="transform_request"):
@@ -57,18 +60,19 @@ def predict(request: bytes) -> bytes:
     return transformed_response
 
 
-def _transform_request(request: bytes) -> dict:
+# input: bytes
+# return: dict 
+def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    # TODO:  Remove the reshape when we sync this with the other models (1, 784)
-    #        Don't forget to adjust pipeline_train.py
     request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
-    # TODO:  Change this to inputs when we synd with other models 
     return {"image": image_tensor}
 
 
-def _transform_response(response: dict) -> json:
+# input: dict
+# return: json 
+def _transform_response(response):
     return json.dumps({"classes": response['classes'].tolist(), 
                        "probabilities": response['probabilities'].tolist(),
                       })
