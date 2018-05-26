@@ -15,22 +15,18 @@
   operations:
     train:
       description: 'Train'
-      # cmd: 'pipeline_train --tpu tpu-us-centra1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1 --data_dir ../input/training --model_dir ./pipeline_tfserving/0 .'
-      cmd: 'pipeline_train --model_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/checkpoint --export_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/pipeline_tfserving --data_dir ../input/'
+      cmd: 'pipeline_train --tpu tpu-us-centra1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1 --data-dir ../input/training --model_dir ./pipeline_tfserving/0 .'
       flags:
-        batch_size:
+        batch-size:
           description: Number of images to include in a training batch
-          default: 1000
-        train_epochs:
-          description: Number of training epochs  
-          default: 1
-        epochs_between_evals:
-          description: Number of epochs before eval
-          default: 1 
+          default: 100
+        epochs:
+          description: Number of epochs to train
+          default: 5
 
     evaluate:
       description: 'Evaluate'
-      cmd: 'pipeline_train --test --model_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/checkpoint --export_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/pipeline_tfserving --data_dir ../input'
+      cmd: 'pipeline_train --test --data-dir ../input/training --model-dir ../output/validation .'
       requires:
         - trained-model
   resources:
@@ -49,7 +45,7 @@
     model_desc: cnn
     train_cmd: pipeline_train
     model_name: mnist
-    model_tag: v4
+    model_tag: v5
     model_type: tensorflow
     model_runtime: tfserving
     model_chip: cpu
