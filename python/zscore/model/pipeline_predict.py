@@ -19,10 +19,13 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME'],
-          'model_type': os.environ['PIPELINE_MODEL_TYPE'],
-          'model_name': os.environ['PIPELINE_MODEL_NAME'],
-          'model_tag': os.environ['PIPELINE_MODEL_TAG']}
+_labels = {
+           'model_name': 'zscore',
+           'model_tag': 'v1',
+           'model_type': 'python',
+           'model_runtime': 'python',
+           'model_chip': 'cpu',
+          }
 
 
 def _initialize_upon_import():
@@ -40,7 +43,7 @@ _model = _initialize_upon_import()
 
 
 @log(labels=_labels, logger=_logger)
-def predict(request: bytes) -> bytes:
+def predict(request):
     '''Where the magic happens...'''
     transformed_request = _transform_request(request)
 
@@ -50,7 +53,7 @@ def predict(request: bytes) -> bytes:
     return _transform_response(predictions)
 
 
-def _predict(inputs: dict) -> bytes:
+def _predict(inputs):
     cat_affinity_score = sum([ d['weight'] * d['user_score'] for d in inputs if 'cat' in d['tags'] ])
     dog_affinity_score = sum([ d['weight'] * d['user_score'] for d in inputs if 'dog' in d['tags'] ])
 

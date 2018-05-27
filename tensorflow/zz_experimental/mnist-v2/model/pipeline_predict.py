@@ -19,13 +19,12 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels = {
-           'model_name': 'mnist',
-           'model_tag': 'v5',
-           'model_type': 'tensorflow',
-           'model_runtime': 'tfserving',
-           'model_chip': 'cpu',
-          }
+_labels= {'model_name': 'mnist',
+          'model_tag': 'v2',
+          'model_type': 'tensorflow',
+          'model_runtime': 'tfserving',
+          'model_chip': 'cpu',
+         }
 
 
 def _initialize_upon_import():
@@ -61,12 +60,10 @@ def predict(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    # TODO:  Remove the reshape when we sync this with the other models (1, 784)
-    #        Don't forget to adjust pipeline_train.py
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
+    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0)
+      # .reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
-    # TODO:  Change this to inputs when we synd with other models 
-    return {"image": image_tensor}
+    return {"inputs": image_tensor}
 
 
 def _transform_response(response):

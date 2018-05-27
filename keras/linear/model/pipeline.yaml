@@ -13,16 +13,16 @@
       description: 'Train'
       cmd: 'pipeline_train'
       flags:
-        batch-size:
+        batch_size:
           description: Number of images to include in a training batch
           default: 1
-        data-dir:
+        data_dir:
           description: Training dataset
           default: ../input/training
-        model-dir:
+        model_dir:
           description: Checkpoint directory
           default: ../checkpoint
-        train-steps:
+        train_steps:
           description: Training steps
           default: 1
     evaluate:

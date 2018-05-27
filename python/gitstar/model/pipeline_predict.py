@@ -15,14 +15,13 @@ _logger.addHandler(_logger_stream_handler)
 
 __all__ = ['predict']
 
-_model_tag = os.environ['PIPELINE_MODEL_TAG']
-
-_labels= {'model_runtime': 'python',
-          'model_type': 'python', 
-          'model_name': 'gitstar',
-          'model_tag': _model_tag,
-          'model_chip': 'cpu'
-         }
+_labels = {
+           'model_name': 'gitstar',
+           'model_tag': 'v1',
+           'model_type': 'python',
+           'model_runtime': 'python',
+           'model_chip': 'cpu',
+          }
 
 _stream_url = 'http://stream-gitstar-%s:8082' % _model_tag 
 _stream_url = _stream_url.rstrip('/')
@@ -39,7 +38,7 @@ _stream_accept_and_content_type_headers = {"Accept": "application/vnd.kafka.v2+j
 #_slack_url = "curl -X POST --data 'token=xoxa-228608739446-303548610531-303548610803-376b8dcda37e59fc571c660eb0fb9c1d&channel=%40cfregly&text=%s' https://slack.com//api/chat.postMessage"
 
 @log(labels=_labels, logger=_logger)
-def predict(request: bytes) -> bytes:
+def predict(request):
     with monitor(labels=_labels, name="predict"):
 
         request_str = request.decode('utf-8')

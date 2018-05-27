@@ -19,15 +19,16 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_name': 'mnist',
-          'model_tag': 'v4',
-          'model_type': 'tensorflow',
-          'model_runtime': 'tfserving',
-          'model_chip': 'cpu',
-         }
+_labels = {
+           'model_name': 'mnist',
+           'model_tag': 'v4',
+           'model_type': 'tensorflow',
+           'model_runtime': 'tfserving',
+           'model_chip': 'cpu',
+          }
 
 
-def _initialize_upon_import(): # -> TensorFlowServingModel:
+def _initialize_upon_import():
     ''' Initialize / Restore Model Object.
     '''
     return TensorFlowServingModel(host='localhost',

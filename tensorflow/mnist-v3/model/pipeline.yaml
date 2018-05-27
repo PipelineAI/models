@@ -1,11 +1,11 @@
 - package: mnist
   version: 1.5.0
-  description: digits
+  description: mnist digits
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [mnist, images, model]
+  tags: [mnist, tensorflow, model]
 
 # -------------------------------------------------------------------
 # mnist-base (shared config)
@@ -15,22 +15,29 @@
   operations:
     train:
       description: 'Train'
-      # cmd: 'pipeline_train --tpu tpu-us-centra1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1 --data_dir ../input/training --model_dir ./pipeline_tfserving/0 .'
-      cmd: 'pipeline_train --model_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/checkpoint --export_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/pipeline_tfserving --data_dir ../input/'
+      cmd: 'pipeline_train'
       flags:
+        data_dir:
+          description: Datasets directory
+          default: ./input
+        model_dir:
+          description: Checkpoint directory
+          default: ./checkpoint
+        export_dir:
+          description: Export directory
+          default: ./pipeline_tfserving         
         batch_size:
           description: Number of images to include in a training batch
-          default: 1000
+          default: 100
         train_epochs:
           description: Number of training epochs  
-          default: 1
+          default: 2 
         epochs_between_evals:
           description: Number of epochs before eval
           default: 1 
-
     evaluate:
       description: 'Evaluate'
-      cmd: 'pipeline_train --test --model_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/checkpoint --export_dir /Users/cfregly/pipelineai/models/tensorflow/mnist-v4/model/pipeline_tfserving --data_dir ../input'
+      cmd: 'pipeline_train --test'
       requires:
         - trained-model
   resources:
@@ -49,7 +56,7 @@
     model_desc: cnn
     train_cmd: pipeline_train
     model_name: mnist
-    model_tag: v4
+    model_tag: v3
     model_type: tensorflow
     model_runtime: tfserving
     model_chip: cpu

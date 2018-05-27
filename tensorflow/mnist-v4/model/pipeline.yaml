@@ -5,7 +5,7 @@
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [mnist, images, model]
+  tags: [mnist, tensorflow, images, model]
 
 # -------------------------------------------------------------------
 # mnist-base (shared config)
@@ -15,7 +15,7 @@
   operations:
     train:
       description: 'Train'
-      cmd: 'pipeline_train --model_dir ./checkpoint --export_dir ./pipeline_tfserving --data_dir ../input'
+      cmd: 'pipeline_train --model_dir ../checkpoint --export_dir ./pipeline_tfserving --data_dir ../input'
       flags:
         batch_size:
           description: Number of images to include in a training batch

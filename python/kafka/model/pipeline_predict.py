@@ -15,13 +15,13 @@ _logger.addHandler(_logger_stream_handler)
 
 __all__ = ['predict']
 
-_labels= {
-          'model_name': os.environ['PIPELINE_MODEL_NAME'],
-          'model_tag': os.environ['PIPELINE_MODEL_TAG'],
-          'model_type': os.environ['PIPELINE_MODEL_TYPE'],
-          'model_runtime': os.environ['PIPELINE_MODEL_RUNTIME']
-          'model_chip': os.environ['PIPELINE_MODEL_CHIP'],
-         }
+_labels = {
+           'model_name': 'kafka',
+           'model_tag': 'v1',
+           'model_type': 'python',
+           'model_runtime': 'python',
+           'model_chip': 'cpu',
+          }
 
 def _initialize_upon_import():
     model_pkl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model.pkl')
@@ -38,7 +38,7 @@ _model = _initialize_upon_import()
 
 
 @log(labels=_labels, logger=_logger)
-def predict(request: bytes) -> bytes:
+def predict(request):
     '''Where the magic happens...'''
     transformed_request = _transform_request(request)
 
@@ -48,7 +48,7 @@ def predict(request: bytes) -> bytes:
     return _transform_response(predictions)
 
 
-def _predict(inputs: dict) -> bytes:
+def _predict(inputs):
     cat_affinity_score = sum([ d['weight'] * d['user_score'] for d in inputs if 'cat' in d['tags'] ])
     dog_affinity_score = sum([ d['weight'] * d['user_score'] for d in inputs if 'dog' in d['tags'] ])
 

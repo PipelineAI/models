@@ -6,7 +6,6 @@ import logging
 from pipeline_model import TensorFlowServingModel
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
-
 import tensorflow as tf
 
 _logger = logging.getLogger('pipeline-logger')
@@ -19,13 +18,12 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels = {
-           'model_name': 'mnist',
-           'model_tag': 'v5',
-           'model_type': 'tensorflow',
-           'model_runtime': 'tfserving',
-           'model_chip': 'cpu',
-          }
+_labels= {'model_name': 'mnist',
+          'model_tag': 'v1',
+          'model_type': 'tensorflow',
+          'model_runtime': 'tfserving',
+          'model_chip': 'cpu',
+         }
 
 
 def _initialize_upon_import():
@@ -42,6 +40,9 @@ def _initialize_upon_import():
 _model = _initialize_upon_import()
 
 
+# Predict Schema
+#   input: bytes
+#   return: json
 @log(labels=_labels, logger=_logger)
 def predict(request):
     '''Where the magic happens...'''
@@ -58,18 +59,29 @@ def predict(request):
     return transformed_response
 
 
+# input: bytes
+# return: dict
 def _transform_request(request):
-    request_str = request.decode('utf-8')
-    request_json = json.loads(request_str)
-    # TODO:  Remove the reshape when we sync this with the other models (1, 784)
-    #        Don't forget to adjust pipeline_train.py
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
-    image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
-    # TODO:  Change this to inputs when we synd with other models 
-    return {"image": image_tensor}
+    ##########################################################
+    # TODO: Convert from bytes to tf.tensor, np.array, etc.
+    ##########################################################
+    #
+    # transformed_request = tf.make_tensor_proto(request,
+    #                                            dtype=tf.float32,
+    #                                            shape=[1])
+    #
+    transformed_request = request
+
+    return transformed_request
 
 
+# input: dict 
+# return: json
 def _transform_response(response):
-    return json.dumps({"classes": response['classes'].tolist(), 
-                       "probabilities": response['probabilities'].tolist(),
-                      })
+    ##########################################################
+    # TODO: Convert from tf.tensor, np.array, etc. to bytes
+    ##########################################################
+    #
+    transformed_response = response
+
+    return transformed_response

@@ -21,14 +21,15 @@ _logger.addHandler(_logger_stream_handler)
 __all__ = ['predict']
 
 
-_labels= {'model_name': 'linear',
-          'model_tag': 'v1',
-          'model_type': 'keras',
-          'model_runtime': 'python',
-          'model_chip': 'cpu',
-         }
+_labels = {
+           'model_name': 'linear',
+           'model_tag': 'v1',
+           'model_type': 'keras',
+           'model_runtime': 'python',
+           'model_chip': 'cpu',
+          }
 
-def _initialize_upon_import(model_state_path: str) -> KerasTheanoModel:
+def _initialize_upon_import(model_state_path):
     ''' Initialize / Restore Model Object.
     '''
     return KerasTheanoModel(model_state_path)
@@ -37,8 +38,9 @@ def _initialize_upon_import(model_state_path: str) -> KerasTheanoModel:
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'state/keras_theano_linear_model_state.h5'))
 
+
 @monitor(labels=_labels, name="transform_request")
-def _json_to_numpy(request: bytes) -> np.array:
+def _json_to_numpy(request):
     request_str = request.decode('utf-8')
     request_str = request_str.strip().replace('\n', ',')
     # surround the json with '[' ']' to prepare for conversion
@@ -49,12 +51,12 @@ def _json_to_numpy(request: bytes) -> np.array:
 
 
 @monitor(labels=_labels, name="transform_response")
-def _numpy_to_json(response: np.array) -> bytes:
+def _numpy_to_json(response):
     return json.dumps(response.tolist())
 
 
 @log(labels=_labels, logger=_logger)
-def predict(request: bytes) -> bytes:
+def predict(request):
     '''Where the magic happens...'''
     transformed_request = _json_to_numpy(request)
 
