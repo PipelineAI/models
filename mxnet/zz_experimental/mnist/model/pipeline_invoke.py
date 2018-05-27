@@ -6,7 +6,7 @@ import ujson
 import cloudpickle as pickle
 import logging
 
-_logger = logging.getLogger('pipeline-logger')
+_logger = logging.getLogger('model_logger')
 _logger.setLevel(logging.INFO)
 _logger_stream_handler = logging.StreamHandler()
 _logger_stream_handler.setLevel(logging.INFO)
@@ -44,7 +44,7 @@ def invoke(request):
     transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name="invoke"):
-        response = _model.predict(transformed_request)
+        reponse = _model.predict(transformed_request)
 
     return _transform_response(response)
 

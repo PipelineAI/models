@@ -1,7 +1,7 @@
 public void initialize(Map<String, Object> args) {
 }
 
-public Object predict(Map<String, Object> inputs) {
+public Object invoke(Map<String, Object> inputs) {
     Double bathrooms = (Double)inputs.get("bathrooms");
 
     Double bedrooms = (Double)inputs.get("bedrooms");
