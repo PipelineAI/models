@@ -3,7 +3,7 @@ os.environ['KERAS_BACKEND'] = 'theano'
 os.environ['THEANO_FLAGS'] = 'floatX=float32,device=cpu'
 
 import cloudpickle as pickle
-import pipeline_predict
+import pipeline_invoke
 import pandas as pd
 import numpy as np
 import keras
@@ -14,7 +14,7 @@ from keras.models import save_model, load_model
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer
 
 if __name__ == '__main__':
-    df = pd.read_csv("data/training.csv")
+    df = pd.read_csv("../input/training/training.csv")
     df["People per Television"] = pd.to_numeric(df["People per Television"],errors='coerce')
     df = df.dropna()
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     save_model(model, 'state/keras_theano_linear_model_state.h5')
 
-    model_pkl_path = 'model.pkl' 
+#    model_pkl_path = 'model.pkl' 
 
-    with open(model_pkl_path, 'wb') as fh:
-        pickle.dump(pipeline_predict, fh)
+#    with open(model_pkl_path, 'wb') as fh:
+#        pickle.dump(pipeline_invoke, fh)
