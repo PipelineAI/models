@@ -32,7 +32,7 @@ def _initialize_upon_import():
     '''
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
-                                  model_name=os.environ['PIPELINE_MODEL_NAME'],
+                                  model_name='census',
                                   model_signature_name=None,
                                   timeout_seconds=10.0)
 
