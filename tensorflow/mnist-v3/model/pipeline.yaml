@@ -1,7 +1,7 @@
 - package: mnist
   version: v3
   author-email:
-  tags: [mnist, v1, model]
+  tags: [mnist, v3, model]
 
 # -------------------------------------------------------------------
 # base (shared config)
