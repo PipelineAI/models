@@ -1,40 +1,30 @@
 - package: mnist
-  version: 1.5.0
-  description: mnist digits
-  url: https://github.com/PipelineAI/models
-  author: PipelineAI
-  author-email: contact@pipeline.ai
-  license: Apache 2.0
-  tags: [mnist, tensorflow, model]
+  version: v3
+  author-email:
+  tags: [mnist, v1, model]
 
 # -------------------------------------------------------------------
-# mnist-base (shared config)
+# base (shared config)
 # -------------------------------------------------------------------
 
-- config: mnist-base
+- config: base
   operations:
     train:
       description: 'Train'
       cmd: 'pipeline_train'
       flags:
-        data_dir:
-          description: Datasets directory
-          default: ./input
-        model_dir:
-          description: Checkpoint directory
-          default: ./checkpoint
-        export_dir:
-          description: Export directory
-          default: ./pipeline_tfserving         
-        batch_size:
+        batch-size:
           description: Number of images to include in a training batch
-          default: 100
-        train_epochs:
-          description: Number of training epochs  
-          default: 2 
-        epochs_between_evals:
-          description: Number of epochs before eval
-          default: 1 
+          default: 1
+        data-dir:
+          description: Training dataset
+          default: ./input/training
+        model-dir:
+          description: Output directory
+          default: ./checkpoint
+        train-steps:
+          description: Training steps
+          default: 1
     evaluate:
       description: 'Evaluate'
       cmd: 'pipeline_train --test'
@@ -50,10 +40,9 @@
             - checkpoint
 
 - model: mnist
-  description: official mnist
-  extends: mnist-base
+  extends: base
   params:
-    model_desc: cnn
+    model_desc: mnist
     train_cmd: pipeline_train
     model_name: mnist
     model_tag: v3
