@@ -1,7 +1,7 @@
 - package: mnist
   version: v3
   author-email:
-  tags: [mnist, v3, model]
+  tags: [mnist, v3, tensorflow, model]
 
 # -------------------------------------------------------------------
 # base (shared config)
@@ -13,17 +13,23 @@
       description: 'Train'
       cmd: 'pipeline_train'
       flags:
-        batch-size:
+        batch_size:
           description: Number of images to include in a training batch
           default: 1
-        data-dir:
+        data_dir:
           description: Training dataset
           default: ./input/training
-        model-dir:
+        model_dir:
           description: Output directory
           default: ./checkpoint
-        train-steps:
+        train_steps:
           description: Training steps
+          default: 1
+        train_epochs:
+          description: Training epochs
+          default: 1
+        epochs_between_evals:
+          description: Epochs between evaluation runs 
           default: 1
     evaluate:
       description: 'Evaluate'
