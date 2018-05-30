@@ -22,9 +22,6 @@
         model_dir:
           description: Output directory
           default: ./checkpoint
-        train_steps:
-          description: Training steps
-          default: 1
         train_epochs:
           description: Training epochs
           default: 1
