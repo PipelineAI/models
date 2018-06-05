@@ -1,0 +1,59 @@
+- package: mnist
+  version: 1.5.0
+  description: digits
+  url: https://github.com/PipelineAI/models
+  author: PipelineAI
+  author-email: contact@pipeline.ai
+  license: Apache 2.0
+  tags: [mnist, keras, images, model]
+
+# -------------------------------------------------------------------
+# mnist-base (shared config)
+# -------------------------------------------------------------------
+
+- config: mnist-base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train --tpu tpu-us-centra1-c-00 --tpu-zone us-central1-c --gcp-project flux-capacitor1'
+      flags:
+        batch_size:
+          description: Number of images to include in a training batch
+          default: 1024
+        learning_rate:
+          description: Number of epochs to train
+          default: 0.05
+        training_step:
+          description: Training steps
+          default: 1000
+        model_dir:
+          description: Model dir
+          default: ./checkpoint
+        data_dir:
+          description: Data dir
+          default: ./input/training
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train --test'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+
+- model: mnist
+  description: official mnist
+  extends: mnist-base
+  params:
+    model_desc: mnist-v2
+    train_cmd: pipeline_train
+    model_name: mnist
+    model_tag: v2
+    model_type: keras
+    model_runtime: tfserving
+    model_chip: cpu
