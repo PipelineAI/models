@@ -154,7 +154,8 @@ def main(unused_argv):
   eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
 
-  # TODO:  Finish this
+  # TODO:  Finish this...
+  #        See https://medium.com/@yuu.ishikawa/serving-pre-modeled-and-custom-tensorflow-estimator-with-tensorflow-serving-12833b4be421
   # TODO:  Add flags that match mnist-v3
   #        Replace v3 (actually keras!) with this v4
   # TODO:  Print signaturedef - i think it might be x?
