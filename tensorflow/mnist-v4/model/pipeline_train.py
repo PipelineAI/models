@@ -162,7 +162,7 @@ def main(unused_argv):
   # Export the model
   # image = tf.placeholder(tf.float32, [None, 28, 28])
   # input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
-  #    'x': image,
+  #    'image': image,
   #})
   # mnist_classifier.export_savedmodel('pipeline_tfserving/0', input_fn)
 
