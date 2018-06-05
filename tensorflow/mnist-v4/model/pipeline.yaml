@@ -1,34 +1,24 @@
 - package: mnist
-  version: 1.5.0
-  description: digits
-  url: https://github.com/PipelineAI/models
-  author: PipelineAI
-  author-email: contact@pipeline.ai
-  license: Apache 2.0
-  tags: [mnist, tensorflow, images, model]
+  version: v4
+  author-email:
+  tags: [mnist, v4, tensorflow, model]
 
 # -------------------------------------------------------------------
-# mnist-base (shared config)
+# base (shared config)
 # -------------------------------------------------------------------
 
-- config: mnist-base
+- config: base
   operations:
     train:
       description: 'Train'
-      cmd: 'pipeline_train --model_dir ../checkpoint --export_dir ./pipeline_tfserving --data_dir ../input'
+      cmd: 'pipeline_train'
       flags:
-        batch_size:
-          description: Number of images to include in a training batch
-          default: 1000
-        train_epochs:
-          description: Number of training epochs  
-          default: 1
-        epochs_between_evals:
-          description: Number of epochs before eval
-          default: 1 
+        export_dir:
+          description: Export dir
+          default: ./pipeline_tfserving  
     evaluate:
       description: 'Evaluate'
-      cmd: 'pipeline_train --test --model_dir ./checkpoint --export_dir ./pipeline_tfserving --data_dir ../input'
+      cmd: 'pipeline_train --test'
       requires:
         - trained-model
   resources:
@@ -41,10 +31,9 @@
             - checkpoint
 
 - model: mnist
-  description: official mnist
-  extends: mnist-base
+  extends: base
   params:
-    model_desc: cnn
+    model_desc: mnist
     train_cmd: pipeline_train
     model_name: mnist
     model_tag: v4
