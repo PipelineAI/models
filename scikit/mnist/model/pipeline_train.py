@@ -1,17 +1,28 @@
 import numpy as np
 from scipy.ndimage import convolve
 from sklearn.neural_network import MLPClassifier
-from sklearn.datasets import fetch_mldata
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.externals import joblib
 import os.path
+from scipy.io import loadmat
 
-PATH = 'mlp_model.pkl'
+PATH = 'model.pkl'
 
 if __name__ == '__main__':
     print('Fetching and loading MNIST data')
-    mnist = fetch_mldata('MNIST original')
-    X, y = mnist.data, mnist.target
+
+    mnist_path = os.path.join(".", "mnist-original.mat")
+    mnist_raw = loadmat(mnist_path)
+    mnist = {
+        "data": mnist_raw["data"].T,
+        "target": mnist_raw["label"][0],
+        "COL_NAMES": ["label", "data"],
+        "DESCR": "mldata.org dataset: mnist-original",
+    }
+
+    print(mnist)
+
+    X, y = mnist["data"], mnist["target"]
     X_train, X_test, y_train, y_test = train_test_split(X / 255., y, test_size=0.25)
 
     print('Got MNIST with %d training- and %d test samples' % (len(y_train), len(y_test)))
