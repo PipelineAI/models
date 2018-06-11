@@ -17,8 +17,8 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'linear',
-           'model_tag', 'v1',
-           'model_type', 'scikit',
+           'model_tag': 'v1',
+           'model_type': 'scikit',
            'model_runtime': 'python',
            'model_chip': 'cpu',
           }
