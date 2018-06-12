@@ -1,11 +1,11 @@
-- package: linear 
+- package: mnist 
   version: 1.5.0
-  description: mnist scikit 
+  description: scikit mnist
   url: https://github.com/PipelineAI/models
   author: PipelineAI
   author-email: contact@pipeline.ai
   license: Apache 2.0
-  tags: [linear, scikit, model]
+  tags: [mnist, scikit, model]
 
 # -------------------------------------------------------------------
 # base config
@@ -30,13 +30,13 @@
             - model.ckpt.*
             - checkpoint
 
-- model: linear 
-  description: linear 
+- model: mnist 
+  description: mnist
   extends: base
   params:
-    model_desc: scikit linear 
+    model_desc: scikit mnist
     train_cmd: pipeline_train
-    model_name: linear
+    model_name: mnist
     model_tag: v1 
     model_type: scikit
     model_runtime: python 
