@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Train the model using the training sets
     model.fit(diabetes_X_train, diabetes_y_train)
 
-    model_pkl_path = '%s/model.pkl' % os.environ['PIPELINE_OUTPUT_PATH']
+    model_pkl_path = './model.pkl' 
 
     with open(model_pkl_path, 'wb') as fh:
         pickle.dump(model, fh)
