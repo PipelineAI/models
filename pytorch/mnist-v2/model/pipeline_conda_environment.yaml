@@ -4,5 +4,7 @@ dependencies:
   - python=3.6
   - pytorch=0.4.0
   - torchvision=0.2.1
+# cuda90 only works on linux and windows (not macos)
+  - cuda90
   - pip:
     - pipeline-runtime==1.0.8
