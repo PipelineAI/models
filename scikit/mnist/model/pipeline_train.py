@@ -6,7 +6,7 @@ from sklearn.externals import joblib
 import os.path
 from scipy.io import loadmat
 
-PATH = 'model.pkl'
+PATH = './model.pkl'
 
 if __name__ == '__main__':
     print('Fetching and loading MNIST data')
