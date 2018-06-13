@@ -3,15 +3,19 @@ from scipy.ndimage import convolve
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.externals import joblib
-import os.path
+from os import path, environ as env
 from scipy.io import loadmat
 
-PATH = './model.pkl'
+MODEL_DIR = env.get('PIPELINE_MODEL_PATH')
+INPUT_DIR = env.get('PIPELINE_INPUT_PATH')
+OUTPUT_DIR = env.get('PIPELINE_OUTPUT_PATH')
+
+PATH = path.join(OUTPUT_DIR, 'model.pkl')
 
 if __name__ == '__main__':
     print('Fetching and loading MNIST data')
 
-    mnist_path = os.path.join(".", "mnist-original.mat")
+    mnist_path = path.join(INPUT_DIR, 'training', "mnist-original.mat")
     mnist_raw = loadmat(mnist_path)
     mnist = {
         "data": mnist_raw["data"].T,
@@ -29,7 +33,7 @@ if __name__ == '__main__':
     print('Digit distribution in whole dataset:', np.bincount(y.astype('int64')))
 
     clf = None
-    if os.path.exists(PATH):
+    if path.exists(PATH):
         print('Loading model from file.')
         clf = joblib.load(PATH).best_estimator_
     else:
