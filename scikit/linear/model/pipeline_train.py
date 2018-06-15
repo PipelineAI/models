@@ -1,5 +1,7 @@
-import os
+from os import path, environ as env
 import cloudpickle as pickle
+
+OUTPUT_DIR = env.get('PIPELINE_OUTPUT_PATH')
 
 if __name__ == '__main__':
     import numpy as np
@@ -27,7 +29,7 @@ if __name__ == '__main__':
     # Train the model using the training sets
     model.fit(diabetes_X_train, diabetes_y_train)
 
-    model_pkl_path = './model.pkl' 
+    model_pkl_path = path.join(OUTPUT_DIR, 'model.pkl') 
 
     with open(model_pkl_path, 'wb') as fh:
         pickle.dump(model, fh)
