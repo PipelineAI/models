@@ -6,7 +6,6 @@ from sklearn.externals import joblib
 from os import path, environ as env
 from scipy.io import loadmat
 
-MODEL_DIR = env.get('PIPELINE_MODEL_PATH')
 INPUT_DIR = env.get('PIPELINE_INPUT_PATH')
 OUTPUT_DIR = env.get('PIPELINE_OUTPUT_PATH')
 
