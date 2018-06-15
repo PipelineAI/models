@@ -9,11 +9,13 @@ from scipy.io import loadmat
 INPUT_DIR = env.get('PIPELINE_INPUT_PATH')
 OUTPUT_DIR = env.get('PIPELINE_OUTPUT_PATH')
 
+# Note: This is the path within the Docker Container started with `train-server-start`and mounted on the host file system (your laptop or server) with `train-server-build` --model-path (basically same as the path with this source .py file, but i'm highlighting the full context)
 PATH = path.join(OUTPUT_DIR, 'model.pkl')
 
 if __name__ == '__main__':
     print('Fetching and loading MNIST data')
 
+    # Note:  This is the path within the Docker Container started with `train-server-start` and mounted to the host filesystem (your laptop or server) with --PIPELINE_INPUT_HOME (must add /training since only /opt/ml/input is mounted)
     mnist_path = path.join(INPUT_DIR, 'training', "mnist-original.mat")
     mnist_raw = loadmat(mnist_path)
     mnist = {
