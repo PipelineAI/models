@@ -1,6 +1,6 @@
 {
   "thrift": {
-    "host": "35.230.80.251",
+    "host": "34.212.210.47",
     "port": 31998
   },
   "syncingStrategy": "eager",
@@ -11,10 +11,10 @@
   },
   "experiment": {
     "name": "scikit-mnist-1",
-    "description": "scikit-mnist"
+    "description": "scikit-mnist-1"
   },
   "experimentRun": {
-    "description": "scikit-mnist"
+    "description": "scikit-mnist-1"
   },
   "shouldCountRows": false,
   "shouldStoreGSCVE": false,
