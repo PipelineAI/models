@@ -7,14 +7,14 @@
   "project": {
     "name": "scikit-mnist",
     "author": "pipelineai",
-    "description": "Project to hold all models from the demo"
+    "description": "scikit-mnist"
   },
   "experiment": {
-    "name": "scikit-mnist-one",
-    "description": "Default Experiment"
+    "name": "scikit-mnist-1",
+    "description": "scikit-mnist"
   },
   "experimentRun": {
-    "description": "Default Run Description"
+    "description": "scikit-mnist"
   },
   "shouldCountRows": false,
   "shouldStoreGSCVE": false,
