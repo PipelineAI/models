@@ -1,0 +1,30 @@
+{
+  "thrift": {
+    "host": "35.230.80.251",
+    "port": 31998
+  },
+  "syncingStrategy": "eager",
+  "project": {
+    "name": "scikit-mnist",
+    "author": "pipelineai",
+    "description": "Project to hold all models from the demo"
+  },
+  "experiment": {
+    "name": "scikit-mnist-one",
+    "description": "Default Experiment"
+  },
+  "experimentRun": {
+    "description": "Default Run Description"
+  },
+  "shouldCountRows": false,
+  "shouldStoreGSCVE": false,
+  "shouldStoreSpecificModels": false,
+  "git": {
+    "versionCode": "no",
+    "username": "default",
+    "accessToken": null,
+    "repo": null,
+    "exptDir": null,
+    "repoDir": null
+  }
+}

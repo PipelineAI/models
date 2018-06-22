@@ -1,0 +1,43 @@
+- package: mnist 
+  version: 1.5.0
+  description: scikit mnist
+  url: https://github.com/PipelineAI/models
+  author: PipelineAI
+  author-email: contact@pipeline.ai
+  license: Apache 2.0
+  tags: [mnist, scikit, model]
+
+# -------------------------------------------------------------------
+# base config
+# -------------------------------------------------------------------
+
+- config: base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train'
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+
+- model: mnist 
+  description: mnist
+  extends: base
+  params:
+    model_desc: scikit mnist
+    train_cmd: pipeline_train
+    model_name: mnist
+    model_tag: v1 
+    model_type: scikit
+    model_runtime: python 
+    model_chip: cpu
