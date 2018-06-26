@@ -59,7 +59,7 @@ def invoke(request):
 
 #        headers = {'Content-Type': 'text/plain'}
 #        response = requests.post(headers=headers,
-#                                 url='https://slack.com/api/chat.postMessage?token=xoxp-228608739446-227185306481-378989962386-a2ee86b00339b0d15440910408a08b73&channel=demo-community&text=%s' % avatar_url)
+#                                 url='https://slack.com/api/chat.postMessage?token=[INSERT-TOKEN-HERE]&channel=demo-community&text=%s' % avatar_url)
 
 #        response = response.text
 
