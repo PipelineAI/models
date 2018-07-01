@@ -1,8 +1,7 @@
-v ./bash/model/pipeline_conda_environment.ymlchannels:
+channels:
   - caffe2
 dependencies:
-  - pip=9.0.1
-  - python=3.6
+  - python>=3.6
   - caffe2 
   - pip:
     - pipeline-runtime==1.0.8

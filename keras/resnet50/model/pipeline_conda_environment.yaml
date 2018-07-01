@@ -2,8 +2,7 @@ dependencies:
   - openssl=1.0.2l=0
   - pandas=0.22.0
   - numpy=1.14.0
-  - pip=9.0.1
-  - python=3.6.1=2
+  - python>=3.6
   - pytz=2017.2
   - scikit-learn=0.19.1
   - scipy=1.0.0
@@ -14,4 +13,5 @@ dependencies:
   - pip:  
     - keras==2.1.6
     - tensorflow==1.8.0
+    - tensorboard==1.8.0
     - pipeline-runtime==1.0.8

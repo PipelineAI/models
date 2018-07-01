@@ -1,6 +1,5 @@
 dependencies:
   - numpy=1.14.0
-  - pip=9.0.1
-  - python=3.6.1=2
+  - python>=3.6
   - pip:
     - pipeline-runtime==1.0.8
