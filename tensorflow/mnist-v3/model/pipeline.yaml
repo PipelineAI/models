@@ -22,6 +22,9 @@
         model_dir:
           description: Output directory
           default: ./checkpoint
+        export_dir:
+          description: SavedModel directory
+          default: ./pipeline_tfserving
         train_epochs:
           description: Training epochs
           default: 1
