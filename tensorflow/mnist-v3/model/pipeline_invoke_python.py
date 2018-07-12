@@ -31,7 +31,7 @@ _labels = {
 def _initialize_upon_import():
     ''' Initialize / Restore Model Object.
     '''
-    saved_model_path = './pipeline_tfserving/0/'
+    saved_model_path = './pipeline_tfserving/0'
     return predictor.from_saved_model(saved_model_path)
 
 

@@ -1,0 +1,42 @@
+- package: hzxa6qnmnist
+  version: v1chris2
+  author-email:
+  tags: [hzxa6qnmnist, v1chris2, tensorflow, model]
+
+# -------------------------------------------------------------------
+# base (shared config)
+# -------------------------------------------------------------------
+
+- config: base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train'
+      flags:
+        model_dir:
+          description: Model dir
+          default: .
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+
+- model: hzxa6qnmnist
+  extends: base
+  params:
+    train_cmd: pipeline_train
+    model_desc: hzxa6qnmnist
+    model_name: hzxa6qnmnist
+    model_tag: v1chris2
+    model_type: tensorflow
+    model_runtime: tfserving
+    model_chip: cpu
