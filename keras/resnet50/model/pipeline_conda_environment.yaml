@@ -12,6 +12,6 @@ dependencies:
   - h5py>=2.7.0
   - pip:  
     - keras>=2.1.6
-    - tensorflow>=1.9.0rc2
+    - tensorflow>=1.9.0
     - tensorboard>=1.9.0
     - pipeline-runtime==1.0.8
