@@ -21,8 +21,8 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v5',
-           'model_type': 'tensorflow',
+           'model_tag': 'v2',
+           'model_type': 'keras',
            'model_runtime': 'tfserving',
            'model_chip': 'cpu',
           }

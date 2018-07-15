@@ -1,4 +1,4 @@
 dependencies:
-  - python=3.6.1=2
+  - python=3.6
   - pip:
-    - pipeline-runtime>=1.0.8
+    - pipeline-runtime==1.0.8
