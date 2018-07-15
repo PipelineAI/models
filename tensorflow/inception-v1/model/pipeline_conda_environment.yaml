@@ -1,9 +1,9 @@
 dependencies:
-  - python>=3.6
-  - pillow>=5.0.0
+  - python=3.6
+  - pillow=5.0.0
   - pip:
     - grpcio>=1.0
     - tensorflow==1.9.0
     - tensorboard==1.9.0
-    - requests==2.19.4
+    - requests==2.19.1
     - pipeline-runtime==1.0.8
