@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import xgboost as xgb
 import cloudpickle as pickle
+import os
 
 train_df = pd.read_csv("../input/training/train.csv")
 test_df = pd.read_csv("../input/training/test.csv")
@@ -31,13 +32,26 @@ early_stopping = 50
 d_train = xgb.DMatrix(X_train, label=y_train)
 d_val = xgb.DMatrix(X_valid, label=y_valid)
 eval_list = [(d_train, "train"), (d_val, "validation")]
-bst = xgb.train(param_list, d_train, n_rounds, evals=eval_list, early_stopping_rounds=early_stopping, verbose_eval=True)
+model = xgb.train(param_list, d_train, n_rounds, evals=eval_list, early_stopping_rounds=early_stopping, verbose_eval=True)
 
-# TODO:  Pickle trained model `bst`
 model_pkl_path = 'model.pkl'
 print("Exporting saved model...")
 with open(model_pkl_path, 'wb') as fh:
     pickle.dump(model, fh)
 
+
+def _initialize_upon_import():
+    model_pkl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model.pkl')
+
+    # Load pickled model from model directory
+    with open(model_pkl_path, 'rb') as fh:
+        restored_model = pickle.load(fh)
+
+    return restored_model
+
+
+# This is called unconditionally at *module import time*...
+restored_model = _initialize_upon_import()
 d_test = xgb.DMatrix(data=test_std)
-y_pred = bst.predict(d_test)
+y_pred = restored_model.predict(d_test)
+print(y_pred)
