@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - numpy
+  - pandas
+  - scikit-learn
+  - pip:
+    - pipeline-runtime>=1.0.8
+    - xgboost==0.72.1

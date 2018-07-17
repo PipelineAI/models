@@ -48,7 +48,7 @@ def invoke(request):
     transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name="invoke"):
-        response = _predict(transformed_request)
+        response = _model.predict(transformed_request)
 
     return _transform_response(response)
 

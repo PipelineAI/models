@@ -23,7 +23,7 @@ _labels = {
            'model_name': 'mnist',
            'model_tag': 'v3',
            'model_type': 'tensorflow',
-           'model_runtime': 'tfserving',
+           'model_runtime': 'tflite',
            'model_chip': 'cpu',
           }
 
