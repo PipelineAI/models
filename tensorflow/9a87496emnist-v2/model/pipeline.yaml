@@ -1,0 +1,42 @@
+- package: 9a87496emnist
+  version: v2
+  author-email:
+  tags: [9a87496emnist, v2, tensorflow, model]
+
+# -------------------------------------------------------------------
+# base (shared config)
+# -------------------------------------------------------------------
+
+- config: base
+  operations:
+    train:
+      description: 'Train'
+      cmd: 'pipeline_train'
+      flags:
+        model_dir:
+          description: Model dir
+          default: .
+    evaluate:
+      description: 'Evaluate'
+      cmd: 'pipeline_train'
+      requires:
+        - trained-model
+  resources:
+    trained-model:
+      private: yes
+      sources:
+        - operation: train
+          select:
+            - model.ckpt.*
+            - checkpoint
+
+- model: 9a87496emnist
+  extends: base
+  params:
+    train_cmd: pipeline_train
+    model_desc: 9a87496emnist
+    model_name: 9a87496emnist
+    model_tag: v2
+    model_type: tensorflow
+#    model_runtime:  
+    model_chip: cpu
