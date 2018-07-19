@@ -76,8 +76,11 @@ def _transform_response(response):
                        "probabilities": response['probabilities'].tolist(),
                       })
 
+# TODO:  THIS IS A MINI TEST!!
 if __name__ == '__main__':
     with open('../input/predict/test_request.png', 'rb') as fb:
         request_bytes = fb.read()
+        print(request_bytes)
+
         response_bytes = invoke(request_bytes)
         print(response_bytes)
