@@ -63,6 +63,8 @@ def _transform_request(request):
     # TODO:  This is the old code, but gives you an idea of what we were doing before to convert json => np
     # request_np = ((255 - np.array(request_json, dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
 
+    request_np = np.array(request, np.uint8).reshape(1, 28, 28)
+
     # Note:  Don't change this!!
     #        This is what needs to be passed back to the invoke function to make the prediction in TensorFlow.
     return {"image": request_np}
@@ -78,9 +80,15 @@ def _transform_response(response):
 
 # TODO:  THIS IS A MINI TEST!!
 if __name__ == '__main__':
+    # TODO:  This is just a test
+    # from PIL import Image
+    # img = Image.open("image.png")
+    # arr = np.array(img)
+
     with open('../input/predict/test_request.png', 'rb') as fb:
         request_bytes = fb.read()
         print(request_bytes)
+
         response_json = invoke(request_bytes)
         print(response_json)
 
