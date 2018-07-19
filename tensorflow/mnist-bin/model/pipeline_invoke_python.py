@@ -81,6 +81,7 @@ if __name__ == '__main__':
     with open('../input/predict/test_request.png', 'rb') as fb:
         request_bytes = fb.read()
         print(request_bytes)
+        response_json = invoke(request_bytes)
+        print(response_json)
 
-        response_bytes = invoke(request_bytes)
-        print(response_bytes)
+
