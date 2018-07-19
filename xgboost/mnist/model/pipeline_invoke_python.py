@@ -37,10 +37,11 @@ def _initialize_upon_import():
     return restored_model
 
 
-# This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
 
+
 _sc = StandardScaler()
+
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
@@ -59,31 +60,28 @@ def invoke(request):
 
 
 def _transform_request(request):
-    # Convert from bytes to tf.tensor, np.array, etc.
-    request_df = pd.read_csv(request)
-    request_std = _sc.fit_transform(request_df.values)
-    requests_dmatrix= xgb.DMatrix(data=request_std)
-    return request_dmatrix
+    request_str = request.decode('utf-8')
+    request_json = json.loads(request_str)
+   
+    # TODO:  Convert from json above to whatever this xgboost model needs... 
+    #request_df = pd.read_csv(request)
+    #request_std = _sc.fit_transform(request_df.values)
+    #requests_dmatrix= xgb.DMatrix(data=request_std)
+    #return request_dmatrix
 
-#    request_str = request.decode('utf-8')
-#    request_json = json.loads(request_str)
-#    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
-#    return {"image": request_np}
-
+    pass
 
 def _transform_response(response):
-    # Convert from tf.tensor, np.array, etc. to bytes
-    # return response
+    # Convert from xgboost to expect output json 
+    # 
+    #return json.dumps({"classes": response['classes'].tolist(),
+    #                   "probabilities": response['probabilities'].tolist(),
+    #                  })
+    pass
 
-    return json.dumps({"classes": response['classes'].tolist(),
-                       "probabilities": response['probabilities'].tolist(),
-                      })
-
-
+# TODO:  Mini-test
 #test_df = pd.read_csv("../input/training/test.csv")
 #sc = StandardScaler()
 #test_std = sc.fit_transform(test_df.values)
 #d_test = xgb.DMatrix(data=test_std)
-
-# TODO: Add test
 #print(y_pred)
