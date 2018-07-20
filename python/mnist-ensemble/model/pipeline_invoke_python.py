@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import requests
 
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
@@ -48,6 +49,15 @@ def invoke(request):
 #          in the dev or prod UI.
 #
 #        response = ...
+
+    url_model_a = 'https://dev.cloud.pipeline.ai/01234567mnist/invoke'
+    response = _requests.post(
+        url=url_model_a,
+        data=request,
+        form_data,
+        timeout=timeout_seconds
+    )
+
 
     with monitor(labels=_labels, name="transform_response"):
         transformed_response = _transform_response(response)
