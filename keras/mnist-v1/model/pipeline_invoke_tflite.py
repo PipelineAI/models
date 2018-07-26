@@ -58,16 +58,11 @@ def invoke(request):
 
     with monitor(labels=_labels, name="invoke"):
         input_details = _model.get_input_details()
-        print(input_details)
         _model.set_tensor(input_details[0]['index'], transformed_request)
-        print(transformed_request)
         _model.invoke()
+        response = _model.get_output_details()
 
     with monitor(labels=_labels, name="transform_response"):
-        output_details = _model.get_output_details()
-        print(output_details)
-        response = _model.get_tensor(output_details[0]['index'])
-        print(response)
         transformed_response = _transform_response(response)
 
     return transformed_response
@@ -80,15 +75,12 @@ def _transform_request(request):
     return request_np
     
 def _transform_response(response):
-    output_details = _model.get_output_details()
-    print(output_details)
-    output_data = _model.get_tensor(output_details[0]['index'])
-    print(output_data)
-    print(type(output_data))
-    return output_data
-    #return json.dumps({"classes": response['classes'].tolist(), 
-    #                   "probabilities": response['probabilities'].tolist(),
-    #                  })
+    classes_np = _model.get_tensor(response[0]['index'])[0].tolist()
+    probabilities = _model.get_tensor(response[1]['index'])[0].tolist()
+
+    return json.dumps({"classes": classes_np,
+                       "probabilities": probabilities
+                      })
 
 if __name__ == '__main__':
     with open('../input/predict/test_request.json', 'rb') as fb:
