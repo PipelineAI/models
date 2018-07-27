@@ -76,7 +76,7 @@ def _transform_request(request):
     
 def _transform_response(response):
     classes_np = _model.get_tensor(response[0]['index'])[0].tolist()
-    probabilities = _model.get_tensor(response[1]['index'])[0].tolist()
+    probabilities = _model.get_tensor(response[1]['index']).tolist()
 
     return json.dumps({"classes": classes_np,
                        "probabilities": probabilities
