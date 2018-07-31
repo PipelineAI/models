@@ -242,7 +242,7 @@ def run_mnist(flags_obj):
   for _ in range(flags_obj.train_epochs // flags_obj.epochs_between_evals):
     mnist_classifier.train(input_fn=train_input_fn, hooks=train_hooks)
     eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
-    print('\nEvaluation results:\n\t%s\n' % eval_results)
+    # print('\nEvaluation results:\n\t%s\n' % eval_results)
 
     if model_helpers.past_stop_threshold(flags_obj.stop_threshold,
                                          eval_results['accuracy']):

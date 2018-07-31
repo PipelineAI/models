@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow.contrib import predictor
 
 _logger = logging.getLogger('pipeline-logger')
-_logger.setLevel(logging.INFO)
+_logger.setLevel(logging.DEBUG)
 _logger_stream_handler = logging.StreamHandler()
 _logger_stream_handler.setLevel(logging.INFO)
 _logger.addHandler(_logger_stream_handler)
@@ -40,31 +40,43 @@ _model = _initialize_upon_import()
 def invoke(request):
     '''Where the magic happens...'''
 
+    _logger.debug('invoke: raw request: %s' % request)
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)
+    _logger.debug('invoke: transformed request: %s' % transformed_request)
 
     with monitor(labels=_labels, name="invoke"):
         response = _model(transformed_request)
+    _logger.debug('invoke: raw response: %s' % response)
 
     with monitor(labels=_labels, name="transform_response"):
         transformed_response = _transform_response(response)
+    _logger.debug('invoke: transformed response: %s' % transformed_response)
 
     return transformed_response
 
 
 def _transform_request(request):
     request_image_tensor = tf.image.decode_png(request, channels=1, dtype=tf.uint8, name=None)
+    _logger.debug('_transform_request: request_image_tensor: %s' % request_image_tensor)
 
     request_image_tensor_resized = tf.image.resize_images(request_image_tensor, size=[28,28])
+    _logger.debug('_transform_request: request_image_tensor_resized: %s' % request_image_tensor_resized)
 
     sess = tf.Session()
     with sess.as_default():
         request_np = request_image_tensor_resized.eval()
+        _logger.debug('_transform_request: request_np: %s' % request_np)
 
-    return {"image": request_np.reshape(1, 28, 28)}
+        reshaped_request_np = request_np.reshape(1, 28, 28)
+        _logger.debug('_transform_request: reshaped_request_np: %s' % reshaped_request_np)
+
+    return {"image": reshaped_request_np}
 
 
 def _transform_response(response):
+    _logger.debug('_transform_response: raw response: %s' % response)
+
     return json.dumps({"classes": response['classes'].tolist(), 
                        "probabilities": response['probabilities'].tolist(),
                       })
