@@ -1,0 +1,11 @@
+channels:
+  - conda-forge 
+dependencies:
+  - python=3.6
+  - ujson=1.35
+#  - onnx=1.1.2
+  - pip:
+    - pipeline-runtime==1.0.8
+    - mxnet==1.2.1
+    - mxnet-model-server==0.4
+# Make sure you run pipeline_setup.sh to install protobuf (ONNX models only)
