@@ -2,6 +2,10 @@
 
 # Step 1: Train a CNN model for MNIST dataset.
 
+#LOOK HERE:
+# * https://github.com/awslabs/keras-apache-mxnet/wiki/Save-MXNet-model-from-Keras-MXNet#import-the-model-in-mxnet-for-inference
+# * https://github.com/awslabs/keras-apache-mxnet/wiki/Keras-MXNet-2.1.6-Release-Notes
+
 from __future__ import print_function
 import keras
 from keras.datasets import mnist

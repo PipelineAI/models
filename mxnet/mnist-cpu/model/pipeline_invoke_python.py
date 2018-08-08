@@ -23,6 +23,11 @@ _labels = {
           }
 
 
+#LOOK HERE:
+# * https://github.com/awslabs/keras-apache-mxnet/wiki/Save-MXNet-model-from-Keras-MXNet#import-the-model-in-mxnet-for-inference
+# * https://github.com/awslabs/keras-apache-mxnet/wiki/Keras-MXNet-2.1.6-Release-Notes
+
+
 def _initialize_upon_import():
     # Step1: Load the model in MXNet
 
