@@ -9,7 +9,7 @@ from pipeline_logger import log
 import tensorflow as tf
 from tensorflow.contrib import predictor
 
-_logger = logging.getLogger('pipeline-logger')
+_logger = logging.getLogger('pipelineai')
 _logger.setLevel(logging.INFO)
 _logger_stream_handler = logging.StreamHandler()
 _logger_stream_handler.setLevel(logging.INFO)
