@@ -26,10 +26,8 @@ _labels = {
            'model_chip': 'cpu',
           }
 
-
 def _initialize_upon_import():
-    """ Initialize / Restore Model Object.
-    """
+    """Initialize / Restore Model Object."""
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name='e30e79aamnist',
@@ -39,19 +37,6 @@ def _initialize_upon_import():
 
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
-
-
-def main(*args, **kwargs):
-    """Main function.
-
-    This function orchestates the process of loading data,
-    initializing the model, training the model, and evaluating the
-    result.
-    """
-    with open('../input/predict/test_request.json', 'rb') as fb:
-        request_bytes = fb.read()
-        response_bytes = invoke(request_bytes)
-        print(response_bytes)
 
 
 @log(labels=_labels, logger=_logger)

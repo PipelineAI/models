@@ -57,7 +57,7 @@ def invoke(request):
 
 
 def _transform_request(request):
-    request_image_tensor = tf.image.decode_png(request, channels=1, dtype=tf.uint8, name=None)
+    request_image_tensor = tf.image.decode_png(request, channels=1, dtype=tf.float32, name=None)
     _logger.debug('_transform_request: request_image_tensor: %s' % request_image_tensor)
 
     request_image_tensor_resized = tf.image.resize_images(request_image_tensor, size=[28, 28])
