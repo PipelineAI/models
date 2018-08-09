@@ -34,7 +34,7 @@ def _initialize_upon_import():
 _model = _initialize_upon_import()
 
 
-@log(labels=_labels, logger=_logger) 
+@log(labels=_labels, logger=_logger)
 def invoke(request):
     '''Where the magic happens...'''
     transformed_request = _transform_request(request)
@@ -48,7 +48,7 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0)
+    request_np = np.array(request_json['image'], dtype=np.uint8)
     request_np = request_np.reshape(1, 784)
     print(request_np)
     return request_np

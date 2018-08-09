@@ -82,7 +82,7 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0)
+    request_np = np.array(request_json['image'], dtype=np.uint8)
     request_np = request_np.reshape(1,1,28,28)
 
     request_tensor = torch.from_numpy(request_np).float()

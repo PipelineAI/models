@@ -22,9 +22,9 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1', 
-           'model_type': 'pytorch', 
-           'model_runtime': 'python', 
+           'model_tag': 'v1',
+           'model_type': 'pytorch',
+           'model_runtime': 'python',
            'model_chip': 'cpu',
           }
 
@@ -52,7 +52,7 @@ class Net(nn.Module):
 def _initialize_upon_import():
     ''' Initialize / Restore Model Object.
     '''
-    saved_model_path = './model.pth' 
+    saved_model_path = './model.pth'
     model = Net()
     model.load_state_dict(torch.load(saved_model_path))
     print('Loaded model from "%s": %s' % (saved_model_path, model))
@@ -82,7 +82,7 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0)
+    request_np = np.array(request_json['image'], dtype=np.uint8)
     request_np = request_np.reshape(1,1,28,28)
 
     request_tensor = torch.from_numpy(request_np).float()
