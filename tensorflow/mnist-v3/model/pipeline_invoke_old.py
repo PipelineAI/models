@@ -61,12 +61,12 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
+    request_np = np.array(request_json['image'], dtype=np.uint8).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
     return {"image": image_tensor}
 
 
 def _transform_response(response):
-    return json.dumps({"classes": response['classes'].tolist(), 
+    return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
