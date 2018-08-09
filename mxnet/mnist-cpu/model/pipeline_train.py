@@ -45,7 +45,7 @@ prefix = 'mnist'
 lenet_model.save_checkpoint(prefix, num_epoch)
 
 # PREDICTION
-# load model back
+# load model 
 symbol, arg_params, aux_params = mx.model.load_checkpoint(prefix, num_epoch)
 lenet_model_loaded = mx.mod.Module(symbol=symbol)
 lenet_model_loaded.set_params(arg_params=arg_params, aux_params=aux_params)
