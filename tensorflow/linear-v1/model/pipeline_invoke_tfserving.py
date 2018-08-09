@@ -29,8 +29,8 @@ _labels = {
 
 
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name='mnist',
@@ -44,7 +44,7 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)

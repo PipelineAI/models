@@ -31,8 +31,8 @@ _labels = {
 
 
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name='inception',
@@ -47,7 +47,7 @@ _model = _initialize_upon_import()
 # https://www.tensorflow.org/serving/serving_inception
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)
@@ -66,7 +66,7 @@ def _transform_request(request):
     # This needs to be a JPEG
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    
+
 #    image_url = request_json['image_url']
 #    image = Image.open(requests.get(image_url, stream=True).raw)
 
@@ -105,7 +105,7 @@ def _transform_request(request):
     #tensor_shape_proto = tensor_shape_pb2.TensorShapeProto(dim=dims)
     #image_tensor_proto = tensor_pb2.TensorProto(dtype=types_pb2.DT_STRING,
     #                                            tensor_shape=tensor_shape_proto,
-    #                                            string_val=[image])    
+    #                                            string_val=[image])
     #
     image_tensor_proto = tf.make_tensor_proto(image,
                                               shape=[1])
@@ -121,7 +121,7 @@ def _transform_response(response):
     class_list_str = [clazz.decode('utf-8') for clazz in class_list]
     score_list = tf.make_ndarray(response['scores']).tolist()[0]
 
-    return {"classes": class_list_str, 
+    return {"classes": class_list_str,
             "scores": score_list}
 
 

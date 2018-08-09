@@ -29,8 +29,8 @@ _labels = {
 
 
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     saved_model_path = './pipeline_tfserving/0'
     optimized_model_base_path = './tflite'
     os.makedirs(optimized_model_base_path, exist_ok=True)
@@ -54,7 +54,7 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)

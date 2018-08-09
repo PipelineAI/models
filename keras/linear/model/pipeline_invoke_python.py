@@ -30,8 +30,8 @@ _labels = {
           }
 
 def _initialize_upon_import(model_state_path):
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     return KerasTheanoModel(model_state_path)
 
 
@@ -57,7 +57,7 @@ def _numpy_to_json(response):
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
     transformed_request = _json_to_numpy(request)
 
     with monitor(labels=_labels, name="invoke"):
