@@ -50,8 +50,8 @@ class Net(nn.Module):
 
 
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     saved_model_path = './model.pth'
     model = Net()
     model.load_state_dict(torch.load(saved_model_path))
@@ -65,7 +65,7 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)

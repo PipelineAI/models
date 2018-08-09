@@ -29,8 +29,8 @@ _labels = {
 
 
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name='e30e79aamnist',
@@ -77,3 +77,10 @@ def _transform_response(response):
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
+
+
+if __name__ == '__main__':
+    with open('../input/predict/test_request.json', 'rb') as fb:
+        request_bytes = fb.read()
+        response_bytes = invoke(request_bytes)
+        print(response_bytes)

@@ -36,7 +36,7 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
     transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name="invoke"):

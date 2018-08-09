@@ -29,8 +29,8 @@ _labels = {
 
 
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
                                   model_name='mnist',
@@ -44,7 +44,7 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger, custom_input_fn=age, custom_output_fn=salaryx_bucketizer())
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)
@@ -70,3 +70,10 @@ def _transform_response(response):
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
+
+
+if __name__ == '__main__':
+    with open('../input/predict/test_request.json', 'rb') as fb:
+        request_bytes = fb.read()
+        response_bytes = invoke(request_bytes)
+        print(response_bytes)

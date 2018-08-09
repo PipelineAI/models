@@ -38,7 +38,7 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     _logger.debug('invoke: raw request: %s' % request)
     with monitor(labels=_labels, name="transform_request"):
@@ -60,7 +60,7 @@ def _transform_request(request):
     request_image_tensor = tf.image.decode_png(request, channels=1, dtype=tf.uint8, name=None)
     _logger.debug('_transform_request: request_image_tensor: %s' % request_image_tensor)
 
-    request_image_tensor_resized = tf.image.resize_images(request_image_tensor, size=[28,28])
+    request_image_tensor_resized = tf.image.resize_images(request_image_tensor, size=[28, 28])
     _logger.debug('_transform_request: request_image_tensor_resized: %s' % request_image_tensor_resized)
 
     sess = tf.Session()
@@ -77,12 +77,11 @@ def _transform_request(request):
 def _transform_response(response):
     _logger.debug('_transform_response: raw response: %s' % response)
 
-    return json.dumps({"classes": response['classes'].tolist(), 
+    return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
 
 
-# Note:  This is a faux test
 if __name__ == '__main__':
     with open('../input/predict/test_request.png', 'rb') as fb:
         request_bytes = fb.read()

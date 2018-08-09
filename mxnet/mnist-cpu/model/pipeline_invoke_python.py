@@ -35,12 +35,12 @@ def _initialize_upon_import():
     sym, arg_params, aux_params = mx.model.load_checkpoint(prefix='mnist_cnn', epoch=0)
 
     # We use the data_names and data_shapes returned by save_mxnet_model API.
-    mod = mx.mod.Module(symbol=sym, 
-                    data_names=['/conv2d_1_input1'], 
-                    context=mx.cpu(), 
+    mod = mx.mod.Module(symbol=sym,
+                    data_names=['/conv2d_1_input1'],
+                    context=mx.cpu(),
                     label_names=None)
-    mod.bind(for_training=False, 
-             data_shapes=[('/conv2d_1_input1', (1,1,28,28))], 
+    mod.bind(for_training=False,
+             data_shapes=[('/conv2d_1_input1', (1,1,28,28))],
              label_shapes=mod._label_shapes)
     mod.set_params(arg_params, aux_params, allow_missing=True)
 
@@ -59,9 +59,9 @@ print("Actual - ", labels[idx])
 _model = _initialize_upon_import()
 
 
-@log(labels=_labels, logger=_logger) 
+@log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
     transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name="invoke"):
