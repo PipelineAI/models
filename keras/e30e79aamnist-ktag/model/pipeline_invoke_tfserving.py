@@ -26,6 +26,7 @@ _labels = {
            'model_chip': 'cpu',
           }
 
+
 def _initialize_upon_import():
     """ Initialize / Restore Model Object.
     """
@@ -38,6 +39,19 @@ def _initialize_upon_import():
 
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
+
+
+def main(*args, **kwargs):
+    """Main function.
+
+    This function orchestates the process of loading data,
+    initializing the model, training the model, and evaluating the
+    result.
+    """
+    with open('../input/predict/test_request.json', 'rb') as fb:
+        request_bytes = fb.read()
+        response_bytes = invoke(request_bytes)
+        print(response_bytes)
 
 
 @log(labels=_labels, logger=_logger)
@@ -59,7 +73,7 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = np.array(request_json['image'], dtype=np.uint8).reshape(1, 28, 28)
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
     return {"image": image_tensor}
 
