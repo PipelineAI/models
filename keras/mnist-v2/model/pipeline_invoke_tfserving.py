@@ -63,7 +63,7 @@ def _transform_request(request):
     request_json = json.loads(request_str)
     # TODO:  Remove the reshape when we sync this with the other models (1, 784)
     #        Don't forget to adjust pipeline_train.py
-    request_np = np.array(request_json['image'], dtype=np.uint8).reshape(1, 28, 28)
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
     # TODO:  Change this to inputs when we synd with other models
     return {"image": image_tensor}

@@ -58,7 +58,7 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = np.array(request_json['image'], dtype=np.uint8).reshape(1, 28, 28)
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
     return {"image": request_np}
 
 

@@ -13,7 +13,7 @@ def load_data(path):
         labels = np.fromstring(flbl.read(), dtype=np.int8)
     with gzip.open(find_file(path, "images.gz")) as fimg:
         _, _, rows, cols = struct.unpack(">IIII", fimg.read(16))
-        images = np.fromstring(fimg.read(), dtype=np.uint8).reshape(len(labels), rows, cols)
+        images = np.fromstring(fimg.read(), dtype=np.float32).reshape(len(labels), rows, cols)
         images = images.reshape(images.shape[0], 1, 28, 28).astype(np.float32) / 255
     return labels, images
 
