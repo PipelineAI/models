@@ -22,8 +22,8 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag', 'v2',
-           'model_type', 'pytorch',
+           'model_tag': 'v2',
+           'model_type': 'pytorch',
            'model_runtime': 'python',
            'model_chip': 'gpu',
           }
