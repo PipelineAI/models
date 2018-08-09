@@ -35,18 +35,18 @@ _labels = {
           }
 
 
-def _initialize_upon_import(file_name: str=None, train_datetime: str=None):
+def _initialize_upon_import(file_name: str=None, train_datetime: str=None) -> xgb.core.Booster:
     """
     Load artifact into memory from a pickled binary archive.
 
     The most recently created artifact is returned
     when file_name or train_datetime is not supplied.
 
-    :param file_name:       The name of the pickled estimator binary artifact, not including path
-    :param train_datetime:  The date and time the training session that created the estimator
-                            in the format: YmdHMS
+    :param str file_name:       The name of the pickled estimator binary artifact, not including path
+    :param str train_datetime:  The date and time the training session that created the estimator
+                                    in the format: YmdHMS
 
-    :return:                un-pickled artifact
+    :return:                    object: un-pickled artifact
     """
 
     if not file_name:
@@ -76,7 +76,7 @@ _model = _initialize_upon_import()
 
 
 @log(labels=_labels, logger=_logger)
-def invoke(request):
+def invoke(request: bytes) -> str:
     """
     Transform bytes posted to the api into an XGBoost DMatrix which is an
     internal data structure that is used by XGBoost which is optimized for
@@ -84,11 +84,11 @@ def invoke(request):
     Classify the image
     Transform the model prediction output from a 1D array to a list of classes and probabilities
 
-    :param request: bytes containing the payload to supply to the predict method
+    :param bytes request:   bytes containing the payload to supply to the predict method
 
-    :return:        json containing a list of classes and probabilities
+    :return:                Response obj serialized to a JSON formatted str
+                                containing a list of classes and a list of probabilities
     """
-
     with monitor(labels=_labels, name='transform_request'):
         transformed_request = _transform_request(request)
 
@@ -101,15 +101,15 @@ def invoke(request):
     return transformed_response
 
 
-def _transform_request(request):
+def _transform_request(request: bytes) -> xgb.DMatrix:
     """
     Transform bytes posted to the api into an XGBoost DMatrix which is an
     internal data structure that is used by XGBoost which is optimized for
     both memory efficiency and training speed
 
-    :param request:  bytes containing the payload to supply to the predict method
+    :param bytes request:   containing the payload to supply to the predict method
 
-    :return:         xgb.DMatrix containing a 1 X 784 matrix of pixels
+    :return:                xgb.DMatrix containing a 1 X 784 matrix of pixels
     """
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
@@ -118,12 +118,13 @@ def _transform_request(request):
     return dnda
 
 
-def _transform_response(response: np.ndarray):
+def _transform_response(response: np.ndarray) -> str:
     """
     Transform response from a 1D array to a list of classes and probabilities
 
-    :param response:  np.ndarray containing the model prediction output
-    :return:          json
+    :param np.ndarray response:     np.ndarray containing the model prediction output
+
+    :return:                        Response obj serialized to a JSON formatted str
     """
     # get prediction, this is in 1D array, need reshape to (ndata, nclass)
     probabilities = response.reshape(response.shape[0], response.shape[1])

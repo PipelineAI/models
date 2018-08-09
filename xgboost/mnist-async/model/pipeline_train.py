@@ -3,11 +3,12 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+import argparse
 import asyncio
 from datetime import datetime
 import logging
 import os
-from time import time
+from typing import Tuple
 
 # ------------- 3rd-party imports ------------------------------------------------------------------
 import mnist
@@ -153,44 +154,138 @@ SUBSAMPLE = 1  # 0.8
 #   see: http://xgboost.readthedocs.io/en/latest/gpu/index.html
 TREE_METHOD = 'hist'
 
+# Booster params.
+DEFAULT_BOOSTER_PARAMS = {
+    'alpha': ALPHA,
+    'booster': BOOSTER,
+    'colsample_bytree': COLSAMPLE_BYTREE,
+    'eval_metric': EVAL_METRIC,
+    'eta': ETA,
+    'lambda': LAMBDA,
+    'max_depth': MAX_DEPTH,
+    'n_estimators': N_ESTIMATORS,
+    'n_jobs': N_JOBS,
+    'num_class': NUM_CLASS,
+    'objective': OBJECTIVE,
+    'predictor': PREDICTOR,
+    'subsample': SUBSAMPLE,
+    'tree_method': TREE_METHOD
+}
 
-async def main():
+
+async def main(*args, **kwargs):
+    """Main function.
+
+    This function orchestrates the process of loading data,
+    initializing the model, training the model, and evaluating the
+    result.
+
+    :param args:    command line arguments
+    :param kwargs:  keyword arguments
+
+    """
+
+    cmd_args, data = await gather_async_results()
+    model = await train(data, cmd_args)
+    await evaluate(model, data, cmd_args)
+    # save the models for later
+    await _pickle_artifact(model, cmd_args)
+
+
+async def gather_async_results() -> (argparse.Namespace, Tuple[xgb.DMatrix, xgb.DMatrix]):
+
+    cmd_args = None
+    data = None
+
+    tasks = [
+        asyncio.ensure_future(parse_args()),
+        asyncio.ensure_future(init_data())
+    ]
+
+    # passing `return_exceptions=True` will return the Exception object if produced
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # iterate the results
+    for result in results:
+        # manually check the types
+        if isinstance(result, Exception):
+            _logger.error('pipeline_train.main.Exception', exc_info=True)
+        elif isinstance(result, argparse.Namespace):
+            cmd_args = result
+        elif isinstance(result, tuple):
+            data = result
+        else:
+            _logger.warning('pipeline_train.main.Unexpected_Result_Type: {}'.format(type(result)))
+
+    return cmd_args, data
+
+
+async def parse_args() -> argparse.Namespace:
+    """Parse command line arguments.
+
+    :return:    argparse.Namespace: An object to take the attributes.
+                    The default is a new empty Namespace object.
+    """
     # create id to uniquely identify this training session
     training_run_datetime = datetime.today().strftime('%Y%m%d%H%M%S')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--train_datetime', type=str, default=training_run_datetime)
+    parser.add_argument('--model_dir', type=str, default='.')
+    parser.add_argument('--booster_params', type=dict, default=DEFAULT_BOOSTER_PARAMS)
+    cmd_args = parser.parse_args()
+    return cmd_args
 
-    # get MNIST database training and testing data and labels as XGBoost.DMatrix
+
+async def init_data() -> Tuple[xgb.DMatrix, xgb.DMatrix]:
+    """Initialize data for training and evaluation.
+
+    :return:        (xgb.DMatrix, xgb.DMatrix) containing MNIST database
+                        training and testing, data and labels as an XGBoost.DMatrix tuple
+    """
     dtrain = await _get_train_dmatrix()
     dtest = await _get_test_dmatrix()
+    data = (dtrain, dtest)
+    return data
 
-    # Booster params.
-    params = {
-        'alpha': ALPHA,
-        'booster': BOOSTER,
-        'colsample_bytree': COLSAMPLE_BYTREE,
-        'eval_metric': EVAL_METRIC,
-        'eta': ETA,
-        'lambda': LAMBDA,
-        'max_depth': MAX_DEPTH,
-        'n_estimators': N_ESTIMATORS,
-        'n_jobs': N_JOBS,
-        'num_class': NUM_CLASS,
-        'objective': OBJECTIVE,
-        'predictor': PREDICTOR,
-        'subsample': SUBSAMPLE,
-        'tree_method': TREE_METHOD
-    }
 
-    # ------------- training and testing -----------------------------------------------------------
+async def train(data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace):
+    """Train the model.
+
+    :param Tuple[xgb.DMatrix, xgb.DMatrix] data:    MNIST database train and test data and labels
+    :param argparse.Namespace args:                 An object to take the attributes
+                                                        The default is a new empty Namespace object
+
+    :return:                                        XGBoost trained mnist model
+    """
+    dtrain = data[0]
+    dtest = data[1]
     # List of items to be evaluated during training, this allows user to watch
     # performance on the validation set
     evals = [(dtrain, 'train'), (dtest, 'validation')]
     model = xgb.train(
-        params=params,
+        params=args.booster_params,
         dtrain=dtrain,
         num_boost_round=NUM_BOOST_ROUND,
         evals=evals,
         early_stopping_rounds=EARLY_STOPPING_ROUNDS
     )
+
+    return model
+
+
+async def evaluate(model: xgb.core.Booster, data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace):
+    """
+    Cross validate results, this will print result out as [iteration]  metric_name:mean_value
+
+    :param xgb.core.Booster model:                  Trained XGBoost MNIST model
+    :param Tuple[xgb.DMatrix, xgb.DMatrix] data:    MNIST database train and test data and labels
+    :param argparse.Namespace args:                 An object to take the attributes
+                                                        The default is a new empty Namespace object
+
+    :return:                                        None
+    """
+    dtrain = data[0]
+    dtest = data[1]
     y_pred = model.predict(dtest)
     _logger.info('y_pred.shape: {}'.format(y_pred.shape))
 
@@ -204,10 +299,21 @@ async def main():
     y_pred_precision_score = precision_score(dtest.get_label(), classes, average='macro')
     _logger.info('y_pred_precision_score: %s' % y_pred_precision_score)
 
-    # save the models for later
-    await _pickle_artifact(model, training_run_datetime)
+    _logger.info('running cross validation')
 
-    await _cross_validate_results(params, dtrain)
+    cv_result = xgb.cv(
+        args.booster_params,
+        dtrain,
+        num_boost_round=10,
+        nfold=5,
+        metrics={EVAL_METRIC},
+        seed=0,
+        callbacks=[
+            xgb.callback.print_evaluation(show_stdv=False),
+            xgb.callback.early_stop(3)
+        ]
+    )
+    _logger.info('evaluate.cv_result: %s' % cv_result)
 
 
 async def _get_train_dmatrix() -> xgb.DMatrix:
@@ -231,7 +337,6 @@ async def _get_train_dmatrix() -> xgb.DMatrix:
     :return:    XGBoost.DMatrix containing the MNIST database training data and labels
     """
     X_train_data_3D_nda = mnist.train_images()
-
     y_train = mnist.train_labels()
     _logger.info('X_train_data_3D_nda.shape: {}'.format(X_train_data_3D_nda.shape))
 
@@ -289,9 +394,35 @@ async def _get_test_dmatrix() -> xgb.DMatrix:
     return dtest
 
 
+async def _pickle_artifact(model: xgb.core.Booster, args: argparse.Namespace) -> str:
+    """
+    Save the model to disk as a bz2 compressed pickled binary artifact.
+
+    :param xgb.core.Booster model:  Trained XGBoost MNIST model
+    :param argparse.Namespace args: An object to take the attributes
+                                    The default is a new empty Namespace object
+
+    :return:                        str path to the pickled binary artifact
+    """
+    # dump the model into a text file
+    model.dump_model('{}_dump.model.raw.txt'.format(args.train_datetime))
+
+    compressor = 'bz2'
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '{}_model.pkl.{}'.format(
+        args.train_datetime,
+        compressor
+    ))
+
+    with open(path, 'wb') as f:
+        joblib.dump(model, f, compress=(compressor, 3))
+
+    _logger.info('saved model: %s' % path)
+    return path
+
+
 async def _save_xgboost_binary_buffers():
     """
-    Save DMatrix into a XGBoost binary files to improve load performance
+    UNUSED - Save DMatrix into a XGBoost binary files to improve load performance
     """
     train_csv = '../input/training/train.csv'
     dtrain_buffer = '../input/training/dtrain.buffer'
@@ -334,61 +465,8 @@ async def _save_xgboost_binary_buffers():
     dtest.save_binary(dtest_buffer)
 
 
-async def _cross_validate_results(params: dict, dtrain: xgb.DMatrix):
-    """
-    Cross validate results, this will print result out as [iteration]  metric_name:mean_value
-
-    :param dict params:         XGBoost
-    :param xgb.DMatrix dtrain:  MNIST database training data and labels
-
-    :return:
-    """
-    _logger.info('running cross validation')
-
-    cv_result = xgb.cv(
-        params,
-        dtrain,
-        num_boost_round=10,
-        nfold=5,
-        metrics={EVAL_METRIC},
-        seed=0,
-        callbacks=[
-            xgb.callback.print_evaluation(show_stdv=False),
-            xgb.callback.early_stop(3)
-        ]
-    )
-    _logger.info('cv_result: %s' % cv_result)
-
-
-async def _pickle_artifact(model, train_datetime: str) -> str:
-    """
-    Save the model to disk as a bz2 compressed pickled binary artifact.
-
-    :param model:               The object to pickle.
-    :param str train_datetime:  The date and time the training session that created the artifact
-                                in the format: YmdHMS
-
-    :return:                    str pickled binary artifact path
-    """
-    # dump the models into a text file
-    model.dump_model('{}_dump.model.raw.txt'.format(train_datetime))
-
-    compressor = 'bz2'
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '{}_model.pkl.{}'.format(
-        train_datetime,
-        compressor
-    ))
-
-    with open(path, 'wb') as f:
-        joblib.dump(model, f, compress=(compressor, 3))
-
-    _logger.info('saved model: %s' % path)
-    return path
-
-
 if __name__ == '__main__':
     """ multiprocessing wants the fork to happen in a __main__ protected block """
-    t = time()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
     loop.close()
