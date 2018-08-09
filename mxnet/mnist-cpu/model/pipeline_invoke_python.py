@@ -40,6 +40,16 @@ def _initialize_upon_import():
 
     mod.bind(for_training=False,
              data_shapes[('data', (1,28,28))],
+
+# TODO:  I took my best guess at this merge conflict... it might not be correct.
+
+#    # We use the data_names and data_shapes returned by save_mxnet_model API.
+#    mod = mx.mod.Module(symbol=sym,
+#                    data_names=['/conv2d_1_input1'],
+#                    context=mx.cpu(),
+#                    label_names=None)
+#    mod.bind(for_training=False,
+#             data_shapes=[('/conv2d_1_input1', (1,1,28,28))],
              label_shapes=mod._label_shapes)
     mod.set_params(arg_params, aux_params, allow_missing=True)
 
