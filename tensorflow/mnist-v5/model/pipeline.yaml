@@ -1,4 +1,0 @@
-- model: mnist 
-  operations:
-    train:
-      cmd: os
