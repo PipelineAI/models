@@ -22,8 +22,8 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1'
-           'model_type': 'caffe'
+           'model_tag': 'v1',
+           'model_type': 'caffe',
            'model_runtime': 'python',
            'model_chip': 'cpu'
           }
