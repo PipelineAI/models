@@ -68,6 +68,7 @@ def _transform_request(request):
     request_json = json.loads(request_str)
     request_np = np.array(request_json['image'], dtype=np.uint8).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
+    _logger.info('tfserving._transform_request.image_tensor: {}'.format(image_tensor))
     return {"image": image_tensor}
 
 

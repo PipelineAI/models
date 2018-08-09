@@ -74,9 +74,10 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = np.array(request_json['image'], dtype=np.uint8).reshape(1, 28, 28)
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
 
     return request_np
+
 
 def _transform_response(response):
     classes_np = _model.get_tensor(response[0]['index'])[0].tolist()
@@ -85,3 +86,10 @@ def _transform_response(response):
     return json.dumps({"classes": classes_np,
                        "probabilities": probabilities
                       })
+
+
+if __name__ == '__main__':
+    with open('../input/predict/test_request.json', 'rb') as fb:
+        request_bytes = fb.read()
+        response_bytes = invoke(request_bytes)
+        print(response_bytes)
