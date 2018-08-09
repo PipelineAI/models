@@ -13,7 +13,7 @@ from typing import Tuple
 # ------------- 3rd-party imports ------------------------------------------------------------------
 # import mnist
 import numpy as np
-import pandas as pd
+# import pandas as pd
 # from sklearn.externals import joblib
 # from sklearn.metrics import precision_score
 # import xgboost as xgb
@@ -37,7 +37,7 @@ np.set_printoptions(
     suppress=True  # suppress scientific notation
 )
 
-pd.set_option('precision', 20)
+# pd.set_option('precision', 20)
 
 # ------------- XGBoost Parameters ----------------------------------------------------------------
 # see:  http://xgboost.readthedocs.io/en/latest/parameter.html

@@ -1,3 +1,4 @@
+# uncomment code below if you need to retrain this xgboost model
 #!/usr/bin/env python3
 # ------------- Builtin imports --------------------------------------------------------------------
 from __future__ import absolute_import
@@ -13,7 +14,7 @@ from typing import Tuple
 # ------------- 3rd-party imports ------------------------------------------------------------------
 # import mnist
 import numpy as np
-import pandas as pd
+# import pandas as pd
 # from sklearn.externals import joblib
 # from sklearn.metrics import precision_score
 # import xgboost as xgb
@@ -37,7 +38,7 @@ np.set_printoptions(
     suppress=True  # suppress scientific notation
 )
 
-pd.set_option('precision', 20)
+# pd.set_option('precision', 20)
 
 # ------------- XGBoost Parameters ----------------------------------------------------------------
 # see:  http://xgboost.readthedocs.io/en/latest/parameter.html
@@ -192,7 +193,7 @@ async def main(*args, **kwargs):
     pass
 
 
-async def gather_async_results() -> (argparse.Namespace, Tuple[xgb.DMatrix, xgb.DMatrix]):
+# async def gather_async_results() -> (argparse.Namespace, Tuple[xgb.DMatrix, xgb.DMatrix]):
 
     # cmd_args = None
     # data = None
@@ -218,10 +219,9 @@ async def gather_async_results() -> (argparse.Namespace, Tuple[xgb.DMatrix, xgb.
     #         _logger.warning('pipeline_train.main.Unexpected_Result_Type: {}'.format(type(result)))
     #
     # return cmd_args, data
-    pass
 
 
-async def parse_args() -> argparse.Namespace:
+# async def parse_args() -> argparse.Namespace:
     """Parse command line arguments.
 
     :return:    argparse.Namespace: An object to take the attributes.
@@ -235,10 +235,9 @@ async def parse_args() -> argparse.Namespace:
     # parser.add_argument('--booster_params', type=dict, default=DEFAULT_BOOSTER_PARAMS)
     # cmd_args = parser.parse_args()
     # return cmd_args
-    pass
 
 
-async def init_data() -> Tuple[xgb.DMatrix, xgb.DMatrix]:
+# async def init_data() -> Tuple[xgb.DMatrix, xgb.DMatrix]:
     """Initialize data for training and evaluation.
 
     :return:        tuple[xgb.DMatrix, xgb.DMatrix] containing MNIST database
@@ -248,10 +247,9 @@ async def init_data() -> Tuple[xgb.DMatrix, xgb.DMatrix]:
     # dtest = await _get_test_dmatrix()
     # data = (dtrain, dtest)
     # return data
-    pass
 
 
-async def train(data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace) -> xgb.core.Booster:
+# async def train(data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace) -> xgb.core.Booster:
     """Train the model.
 
     :param Tuple[xgb.DMatrix, xgb.DMatrix] data:    MNIST database train and test data and labels
@@ -274,10 +272,10 @@ async def train(data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace)
     # )
     #
     # return model
-    pass
+    # pass
 
 
-async def evaluate(model, data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace):
+# async def evaluate(model, data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.Namespace):
     """
     Cross validate results, this will print result out as [iteration]  metric_name:mean_value
 
@@ -318,10 +316,9 @@ async def evaluate(model, data: Tuple[xgb.DMatrix, xgb.DMatrix], args: argparse.
     #     ]
     # )
     # _logger.info('evaluate.cv_result: %s' % cv_result)
-    pass
 
 
-async def _get_train_dmatrix() -> xgb.DMatrix:
+# async def _get_train_dmatrix() -> xgb.DMatrix:
     """
     Get MNIST training data and labels as a XGBoost DMatrix which is an
     internal data structure that used by XGBoost optimized for both
@@ -358,10 +355,9 @@ async def _get_train_dmatrix() -> xgb.DMatrix:
     # dtrain = xgb.DMatrix(X_train, label=y_train)
     #
     # return dtrain
-    pass
 
 
-async def _get_test_dmatrix() -> xgb.DMatrix:
+# async def _get_test_dmatrix() -> xgb.DMatrix:
     """
     Get MNIST test data and labels as a XGBoost DMatrix which is an
     internal data structure that used by XGBoost optimized for both
@@ -398,10 +394,9 @@ async def _get_test_dmatrix() -> xgb.DMatrix:
     # dtest = xgb.DMatrix(X_test, label=y_test)
     #
     # return dtest
-    pass
 
 
-async def _pickle_artifact(model: xgb.core.Booster, args: argparse.Namespace) -> str:
+# async def _pickle_artifact(model: xgb.core.Booster, args: argparse.Namespace) -> str:
     """
     Save the model to disk as a bz2 compressed pickled binary artifact.
 
@@ -425,7 +420,6 @@ async def _pickle_artifact(model: xgb.core.Booster, args: argparse.Namespace) ->
     #
     # _logger.info('saved model: %s' % path)
     # return path
-    pass
 
 
 if __name__ == '__main__':
