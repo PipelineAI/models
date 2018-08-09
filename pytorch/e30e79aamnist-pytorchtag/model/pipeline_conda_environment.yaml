@@ -1,6 +1,0 @@
-dependencies:
-  - python=3.6
-  - pytorch-cpu
-  - torchvision
-  - pip:
-    - pipeline-runtime==1.0.8
