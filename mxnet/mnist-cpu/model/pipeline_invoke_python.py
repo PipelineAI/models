@@ -1,11 +1,14 @@
 import os
 import numpy as np
+import json
+import logging
+
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
 import logging
 import mxnet as mx
 
-_logger = logging.getLogger('pipelineai')
+_logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
 _logger_stream_handler = logging.StreamHandler()
 _logger_stream_handler.setLevel(logging.INFO)
@@ -13,10 +16,9 @@ _logger.addHandler(_logger_stream_handler)
 
 __all__ = ['invoke']
 
-
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1',
+           'model_tag': 'cpu',
            'model_type': 'mxnet',
            'model_runtime': 'python',
            'model_chip': 'cpu',
@@ -59,12 +61,6 @@ def _initialize_upon_import():
                    aux_params,
                    allow_missing=True)
 
-# Check what is the predicted value and actual value
-# We have predicted 10000 samples in test_data. Use different indexes to see different sample results.
-idx = 1020
-print("Predicted - ", np.argmax(result[idx].asnumpy()))
-print("Actual - ", labels[idx])
-
 
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
@@ -80,6 +76,8 @@ def invoke(request):
         response = mod.predict(data_iter)
     return _transform_response(response)
 
+    with monitor(labels=_labels, name="transform_response"):
+        transformed_response = _transform_response(response)
 
 def _transform_request(request):
     request_str = request.decode('utf-8')

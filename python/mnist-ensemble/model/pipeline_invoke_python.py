@@ -50,7 +50,8 @@ def invoke(request):
 #
 #        response = ...
 
-    url_model_a = 'https://community.cloud.pipeline.ai/9a87496emnist/invoke'
+    # TODO: Can we use internal dns name (predict-mnist)
+    url_model_a = 'http://community.cloud.pipeline.ai/9a87496emnist/invoke'
 
     response = _requests.post(
         url=url_model_a,

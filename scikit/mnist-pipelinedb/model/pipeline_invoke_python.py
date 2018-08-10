@@ -17,7 +17,7 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1',
+           'model_tag': 'v2pdb',
            'model_type': 'scikit',
            'model_runtime': 'python',
            'model_chip': 'cpu',
@@ -57,3 +57,11 @@ def _transform_request(request):
 def _transform_response(response):
     response_np = response.data.tolist()[0]
     return json.dumps({"outputs": response_np})
+
+
+#if __name__ == '__main__':
+#    with open('../input/predict/test_request.json', 'rb') as fh:
+#        request_binary = fh.read()
+#
+#    response = pipeline_invoke.invoke(request_binary)
+#    print(response)
