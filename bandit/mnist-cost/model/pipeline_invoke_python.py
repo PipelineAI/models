@@ -12,7 +12,8 @@ import os
 from sklearn.externals import joblib
 
 # --- PipelineAI imports ---------------------------------------------------------------------------
-from pipeline_autorouter import Model
+# TODO: implement pipeline_bandit Model logic
+from pipeline_bandit import Model
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
 

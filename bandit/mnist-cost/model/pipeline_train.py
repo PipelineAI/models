@@ -14,7 +14,8 @@ import os
 from sklearn.externals import joblib
 
 # ------------- 3rd-party imports ------------------------------------------------------------------
-from pipeline_autorouter import Model
+# TODO: implement pipeline_bandit Model logic
+from pipeline_bandit import Model
 
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
@@ -36,6 +37,7 @@ async def test_model(request: bytes):
 
     cmd_args, data, model = await gather_async_results(request)
 
+    # TODO: Implement bandit model training logic
     # model = await train(model, data, cmd_args)
     await evaluate(model, data, cmd_args)
     # save the models for later
@@ -44,10 +46,12 @@ async def test_model(request: bytes):
 
 async def gather_async_results(request: bytes) -> (argparse.Namespace, dict, Model):
     """
+    Execute async task in parallel for methods that do not have external dependencies
+    and wait for all task to complete
 
     :param bytes request:   request payload containing existing routes by tag and weight
 
-    :return:
+    :return:                (argparse.Namespace, dict, Model) task results
     """
 
     cmd_args = None
@@ -113,21 +117,21 @@ async def init_model() -> Model:
 
 
 async def train(model: Model, data: dict, args: argparse.Namespace) -> Model:
-    """Train the model.
+    """TODO: Implement bandit model training logic
 
     :param Model model:                 Route cost model
-    :param dict data:             Cost data
+    :param dict data:                   Training data
     :param argparse.Namespace args:     An object to take the attributes
                                             The default is a new empty Namespace object
 
-    :return:                            Model: trained mnist model
+    :return:                            Model: trained model
     """
     return model
 
 
 async def evaluate(model: Model, data: dict, args: argparse.Namespace):
     """
-    Evaluate model results
+    TODO: Implement model evaluation
 
     :param Model model:                 Trained model
     :param dict data:                   Cost data by deployment target
