@@ -15,11 +15,19 @@ class Model(object):
 
     @staticmethod
     def predict(routes: dict) -> dict:
+        """
+        TODO: Implement bandit logic to optimize route weights
+
+        :param dict routes:     existing routes by tag and weight
+
+        :return:                dict: bandit optimized routes by tag and weight
+        """
 
         n = len(routes)
         autoroutes = dict()
         cumulative_total = 0
 
+        # TODO: replace deployment target cost simulator with your custom bandit logic
         # deployment target cost simulator
         for (k, v) in routes.items():
 
