@@ -43,40 +43,59 @@ def invoke(request):
         transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name="invoke"):
-# TODO:  Using python requests, implement a call to 1 other model (for now)
-#          using a model that has been deployed to dev or prod
-#        For now, just use the full external URL displayed in the http snippet
-#          in the dev or prod UI.
-#
-#        response = ...
+        # TODO: Can we use internal dns name (predict-mnist)
+        # TODO: Pass along the request-tracing headers
+        url_model_a = 'http://community.cloud.pipeline.ai/9a87496e/mnista/invoke'
 
-    # TODO: Can we use internal dns name (predict-mnist)
-    url_model_a = 'http://community.cloud.pipeline.ai/9a87496emnist/invoke'
+        # TODO: Handle any failure responses such as Fallback/Circuit-Breaker, etc
+        response_a = _requests.post(
+            url=url_model_a,
+            data=request,
+            form_data,
+            timeout=timeout_seconds
+        )
 
-    response = _requests.post(
-        url=url_model_a,
-        data=request,
-        form_data,
-        timeout=timeout_seconds
-    )
+        url_model_b = 'http://community.cloud.pipeline.ai/9a87496e/mnistb/invoke'
+
+        response_b = _requests.post(
+            url=url_model_b,
+            data=request,
+            form_data,
+            timeout=timeout_seconds
+        )
+
+        url_model_c = 'http://community.cloud.pipeline.ai/9a87496e/mnistb/invoke'
+
+        response_c = _requests.post(
+            url=url_model_c,
+            data=request,
+            form_data,
+            timeout=timeout_seconds
+        )
+
+    # TODO: Aggregate the responses into a single response
+    #       * Classification:  Return the majority class from all predicted classes
+    #       * Regression:  Average the result
+    # TODO: Include all models that participated in the response (including confidences, timings, etc)
 
     with monitor(labels=_labels, name="transform_response"):
         transformed_response = _transform_response(response)
 
     return transformed_response
 
-# Note:  Don't change this...
+
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.float32)) / 255.0).reshape(1, 28, 28)
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
     return {"image": request_np}
 
-# Note:  Don't change this...
+
 def _transform_response(response):
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
+i
 
 # Note:  This is a mini test
 if __name__ == '__main__':

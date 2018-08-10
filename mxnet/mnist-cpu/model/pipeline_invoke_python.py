@@ -79,21 +79,19 @@ def invoke(request):
     with monitor(labels=_labels, name="transform_response"):
         transformed_response = _transform_response(response)
 
+
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
-
-    # TODO:  This must match whatever the model is expecting
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
     return {"image": request_np}
 
 
 def _transform_response(response):
-#    return json.dumps({"classes": response['classes'].tolist(),
-#                       "probabilities": response['probabilities'].tolist(),
-#                      })
-    print(response)
-    return response
+    return json.dumps({"classes": response['classes'].tolist(),
+                       "probabilities": response['probabilities'].tolist(),
+                      })
+
 
 if __name__ == '__main__':
     with open('../input/predict/test_request.json', 'rb') as fb:
