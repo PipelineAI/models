@@ -127,7 +127,7 @@ def _transform_response(response: dict) -> str:
 
 
 if __name__ == '__main__':
-    with open('test_request.json', 'rb') as fb:
+    with open('pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
         response_bytes = invoke(request_bytes)
         print(response_bytes)
