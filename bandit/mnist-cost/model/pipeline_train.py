@@ -165,7 +165,7 @@ async def _pickle_artifact(model: Model, args: argparse.Namespace) -> str:
 
 if __name__ == '__main__':
     """ multiprocessing wants the fork to happen in a __main__ protected block """
-    with open('test_request.json', 'rb') as fb:
+    with open('pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
 
     loop = asyncio.get_event_loop()
