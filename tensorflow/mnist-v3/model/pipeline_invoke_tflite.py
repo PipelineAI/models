@@ -27,11 +27,12 @@ _labels = {
            'model_chip': 'cpu',
           }
 
+
 def _initialize_upon_import():
-    ''' Initialize / Restore Model Object.
-    '''
+    """ Initialize / Restore Model Object.
+    """
     saved_model_path = './pipeline_tfserving/0/'
-    optimized_model_base_path = './tflite' 
+    optimized_model_base_path = './tflite'
     os.makedirs(optimized_model_base_path, exist_ok=True)
 
     converter = tf.contrib.lite.TocoConverter.from_saved_model(saved_model_path)
@@ -41,17 +42,19 @@ def _initialize_upon_import():
     print('Optimized Model File Size: %s' % file_size_bytes)
 
     # Load TFLite model and allocate tensors.
-    interpreter = tf.contrib.lite.Interpreter(model_path='%s/optimized_model.tflite' % optimized_model_base_path) 
+    interpreter = tf.contrib.lite.Interpreter(model_path='%s/optimized_model.tflite' % optimized_model_base_path)
     interpreter.allocate_tensors()
 
     return interpreter
 
+
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
 
+
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    '''Where the magic happens...'''
+    """Where the magic happens..."""
 
     with monitor(labels=_labels, name="transform_request"):
         transformed_request = _transform_request(request)
@@ -67,13 +70,15 @@ def invoke(request):
 
     return transformed_response
 
+
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = ((255 - np.array(request_json['image'], dtype=np.float32)) / 255.0).reshape(1, 28, 28)
-   
+    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
+
     return request_np
-    
+
+
 def _transform_response(response):
     classes_np = _model.get_tensor(response[0]['index'])[0].tolist()
     probabilities = _model.get_tensor(response[1]['index']).tolist()
@@ -81,6 +86,7 @@ def _transform_response(response):
     return json.dumps({"classes": classes_np,
                        "probabilities": probabilities
                       })
+
 
 if __name__ == '__main__':
     with open('../input/predict/test_request.json', 'rb') as fb:

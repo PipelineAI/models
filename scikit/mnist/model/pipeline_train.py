@@ -3,17 +3,18 @@ from scipy.ndimage import convolve
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.externals import joblib
-import os.path
+from os import path, environ as env
 from scipy.io import loadmat
 
-# Note: This is the path within the Docker Container started with `train-server-start`and mounted on the host file system (your laptop or server) with `train-server-build` --model-path (basically same as the path with this source .py file, but i'm highlighting the full context)
-PATH = '/opt/ml/model/model.pkl'
+INPUT_DIR = env.get('PIPELINE_INPUT_PATH')
+OUTPUT_DIR = env.get('PIPELINE_OUTPUT_PATH')
+
+PATH = path.join(OUTPUT_DIR, 'model.pkl')
 
 if __name__ == '__main__':
     print('Fetching and loading MNIST data')
 
-    # Note:  This is the path within the Docker Container started with `train-server-start` and mounted to the host filesystem (your laptop or server) with --PIPELINE_INPUT_HOME (must add /training since only /opt/ml/input is mounted)
-    mnist_path = os.path.join("/opt/ml/input/training", "mnist-original.mat")
+    mnist_path = path.join(INPUT_DIR, 'training', "mnist-original.mat")
     mnist_raw = loadmat(mnist_path)
     mnist = {
         "data": mnist_raw["data"].T,
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     print('Digit distribution in whole dataset:', np.bincount(y.astype('int64')))
 
     clf = None
-    if os.path.exists(PATH):
+    if path.exists(PATH):
         print('Loading model from file.')
         clf = joblib.load(PATH).best_estimator_
     else:
