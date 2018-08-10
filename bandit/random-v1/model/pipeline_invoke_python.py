@@ -19,7 +19,7 @@ _labels = {
     'tag': 'v1',
     'runtime': 'python',
     'chip': 'cpu',
-    'resource_type': 'python',
+    'resource_type': 'model',
     'resource_subtype': 'bandit'
 }
 
