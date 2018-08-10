@@ -14,7 +14,7 @@ class Model(object):
         pass
 
     @staticmethod
-    def predict(routes: dict) -> dict:
+    def invoke(routes: dict) -> dict:
         """
         TODO: Implement bandit logic to optimize route weights
 

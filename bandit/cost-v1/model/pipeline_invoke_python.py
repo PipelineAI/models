@@ -27,13 +27,13 @@ __all__ = ['invoke']
 
 
 _labels = {
-    'model_name': 'mnist',
-    'model_tag': 'autorouter',
-    'model_type': 'python',
-    'model_runtime': 'python',
-    'model_chip': 'cpu',
+    'name': 'echo',
+    'tag': 'v1',
+    'runtime': 'python',
+    'chip': 'cpu',
+    'resource_type': 'model',
+    'resource_subtype': 'bandit',
 }
-
 
 def _initialize_upon_import(file_name: str=None, train_datetime: str=None) -> Model:
     """
@@ -93,7 +93,7 @@ def invoke(request: bytes) -> str:
         transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name='invoke'):
-        response = _model.predict(transformed_request)
+        response = _model.invoke(transformed_request)
 
     with monitor(labels=_labels, name='transform_response'):
         transformed_response = _transform_response(response)

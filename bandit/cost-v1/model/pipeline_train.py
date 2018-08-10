@@ -140,7 +140,7 @@ async def evaluate(model: Model, data: dict, args: argparse.Namespace):
 
     :return:                            None
     """
-    autoroutes = model.predict(data)
+    autoroutes = model.invoke(data)
     _logger.info('autoroutes: {}'.format(autoroutes))
 
 
