@@ -24,37 +24,15 @@ _labels = {
 }
 
 
-def _randomize(routes: dict) -> dict:
+def _get_replicas(resource_service_name: str) -> int:
     """
-    TODO: Implement bandit logic to optimize route weights
+    TODO: Implement logic to scale out/in services per some metric(s)
 
-    :param dict routes:     existing routes by tag and weight
+    :param str resource_service_name:  resource_service_name
 
-    :return:                dict: bandit optimized routes by tag and weight
+    :return: int: new replica count
     """
-
-    n = len(routes)
-    autoroutes = dict()
-    cumulative_total = 0
-
-    # TODO: replace deployment target cost simulator with your custom bandit logic
-    # deployment target cost simulator
-    for (k, v) in routes.items():
-        if n == 1:
-            i = 100 - cumulative_total
-        else:
-            i = random.randint(1, 21)*5
-            if cumulative_total + i > 100:
-               i = 0
-
-        cumulative_total += i
-        autoroutes[k] = i
-        n -= 1
-
-    if cumulative_total < 100:
-        autoroutes[next(iter(routes.keys()))] = 100 - cumulative_total
-
-    return autoroutes
+    return 1
 
 
 @log(labels=_labels, logger=_logger)
@@ -75,7 +53,7 @@ def invoke(request: bytes) -> str:
         transformed_request = _transform_request(request)
 
     with monitor(labels=_labels, name='invoke'):
-        response = _randomize(transformed_request)
+        response = _get_replicas(transformed_request)
 
     with monitor(labels=_labels, name='transform_response'):
         transformed_response = _transform_response(response)
@@ -83,19 +61,20 @@ def invoke(request: bytes) -> str:
     return transformed_response
 
 
+
 def _transform_request(request: bytes) -> dict:
     """
     Transform bytes posted to the api into a python dictionary containing
-    the resource routes by tag and weight
+    the resource_service_name
 
-    :param bytes request:   containing the payload to supply to the predict method
+    :param bytes request:   containing the payload to supply to the invoke method
 
-    :return:                dict containing the resource routes by tag and weight
+    :return:                resource_service_name
     """
-    return dict(json.loads(request.decode('utf-8'))['resource_split_tag_and_weight_dict'])
+    return dict(json.loads(request.decode('utf-8'))['resource_service_name'])
 
 
-def _transform_response(response: dict) -> str:
+def _transform_response(response: int) -> str:
     """
     Transform response from a python dictionary to a JSON formatted string
 
@@ -105,12 +84,12 @@ def _transform_response(response: dict) -> str:
     """
 
     return json.dumps({
-        'resource_split_tag_and_weight_dict': response
+        'resource_service_name': response
     })
 
 
-if __name__ == '__main__':
-    with open('pipeline_test_request.json', 'rb') as fb:
-        request_bytes = fb.read()
-        response_bytes = invoke(request_bytes)
-        print(response_bytes)
+#if __name__ == '__main__':
+#    with open('pipeline_test_request.json', 'rb') as fb:
+#        request_bytes = fb.read()
+#        response_bytes = invoke(request_bytes)
+#        print(response_bytes)
