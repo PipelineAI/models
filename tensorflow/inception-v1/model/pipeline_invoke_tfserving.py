@@ -35,7 +35,7 @@ def _initialize_upon_import():
     """
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
-                                  model_name='inception',
+                                  model_name='tfserving',
                                   model_signature_name='predict_images',
                                   timeout_seconds=10.0)
 

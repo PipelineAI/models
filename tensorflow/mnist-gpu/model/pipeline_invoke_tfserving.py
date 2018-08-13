@@ -32,7 +32,7 @@ def _initialize_upon_import():
     """ Initialize / Restore Model Object."""
     return TensorFlowServingModel(host='localhost',
                                   port=9000,
-                                  model_name='mnist',
+                                  model_name='tfserving',
                                   model_signature_name=None,
                                   timeout_seconds=10.0)
 
