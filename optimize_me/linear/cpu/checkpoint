@@ -1,2 +1,0 @@
-model_checkpoint_path: "/root/pipelineai/models/optimize_me/linear/cpu/model.ckpt"
-all_model_checkpoint_paths: "/root/pipelineai/models/optimize_me/linear/cpu/model.ckpt"
