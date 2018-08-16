@@ -1,13 +1,15 @@
-import os
-import numpy as np
+# ------------- Builtin imports --------------------------------------------------------------------
 import json
 import logging
 
+# ------------- 3rd-party imports ------------------------------------------------------------------
+import tensorflow as tf
+from tensorflow.contrib import predictor
+
+# --- PipelineAI imports ---------------------------------------------------------------------------
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
 
-import tensorflow as tf
-from tensorflow.contrib import predictor
 
 _logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.DEBUG)
@@ -20,17 +22,25 @@ __all__ = ['invoke']
 
 
 _labels = {
-           'model_name': 'mnist',
-           'model_tag': 'raw',
-           'model_type': 'tensorflow',
-           'model_runtime': 'python',
-           'model_chip': 'cpu',
-          }
+    'model_name': 'mnist',
+    'model_tag': 'raw',
+    'model_type': 'tensorflow',
+    'model_runtime': 'python',
+    'model_chip': 'cpu',
+}
 
 
 def _initialize_upon_import():
-    saved_model_path = './pipeline_tfserving/0'
-    return predictor.from_saved_model(saved_model_path)
+
+    try:
+
+        saved_model_path = './pipeline_tfserving/0'
+        return predictor.from_saved_model(saved_model_path)
+
+    except Exception:
+        _logger.error('pipeline_invoke_python._initialize_upon_import.Exception:', exc_info=True)
+
+    return None
 
 
 _model = _initialize_upon_import()
@@ -38,52 +48,68 @@ _model = _initialize_upon_import()
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
-    """Where the magic happens..."""
+    """
+    Transform bytes posted to the api into a Tensor.
+    Classify the image
+    Transform the model prediction output from a 1D array to a list of classes and probabilities
 
-    _logger.debug('invoke: raw request: %s' % request)
-    with monitor(labels=_labels, name="transform_request"):
-        transformed_request = _transform_request(request)
-    _logger.debug('invoke: transformed request: %s' % transformed_request)
+    :param bytes request:   byte array containing the content required by the predict method
 
-    with monitor(labels=_labels, name="invoke"):
-        response = _model(transformed_request)
-    _logger.debug('invoke: raw response: %s' % response)
+    :return:                Response obj serialized to a JSON formatted str
+                                containing a list of classes and a list of probabilities
+    """
+    try:
 
-    with monitor(labels=_labels, name="transform_response"):
-        transformed_response = _transform_response(response)
-    _logger.debug('invoke: transformed response: %s' % transformed_response)
+        with monitor(labels=_labels, name="transform_request"):
+            transformed_request = _transform_request(request)
 
-    return transformed_response
+        with monitor(labels=_labels, name="invoke"):
+            response = _model(transformed_request)
+
+        with monitor(labels=_labels, name="transform_response"):
+            transformed_response = _transform_response(response)
+
+        return transformed_response
+
+    except Exception:
+        _logger.error('pipeline_invoke_python.invoke.Exception:', exc_info=True)
 
 
 def _transform_request(request):
-    request_image_tensor = tf.image.decode_png(request, channels=1, dtype=tf.float32, name=None)
-    _logger.debug('_transform_request: request_image_tensor: %s' % request_image_tensor)
+    _logger.info('_transform_request: request: %s' % request)
 
+    # channels indicates the desired number of color channels for the decoded image.
+    #
+    # Defaults to 0
+    #
+    # Accepted values are:
+    #
+    #   0: Use the number of channels in the PNG-encoded image.
+    #   1: output a grayscale image.
+    #   3: output an RGB image.
+    #   4: output an RGBA image.
+
+    request_image_tensor = tf.image.decode_png(request, channels=1)
     request_image_tensor_resized = tf.image.resize_images(request_image_tensor, size=[28, 28])
-    _logger.debug('_transform_request: request_image_tensor_resized: %s' % request_image_tensor_resized)
 
     sess = tf.Session()
     with sess.as_default():
         request_np = request_image_tensor_resized.eval()
-        _logger.debug('_transform_request: request_np: %s' % request_np)
-
         reshaped_request_np = request_np.reshape(1, 28, 28)
-        _logger.debug('_transform_request: reshaped_request_np: %s' % reshaped_request_np)
 
     return {"image": reshaped_request_np}
 
 
 def _transform_response(response):
-    _logger.debug('_transform_response: raw response: %s' % response)
 
-    return json.dumps({"classes": response['classes'].tolist(),
-                       "probabilities": response['probabilities'].tolist(),
-                      })
+    return json.dumps({
+        "classes": response['classes'].tolist(),
+        "probabilities": response['probabilities'].tolist(),
+    })
 
 
 if __name__ == '__main__':
-    with open('../input/predict/test_request.png', 'rb') as fb:
+    with open('9.png', 'rb') as fb:
         request_bytes = fb.read()
         response_json = invoke(request_bytes)
         print(response_json)
