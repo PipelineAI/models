@@ -109,7 +109,7 @@ def _transform_response(response):
 
 
 if __name__ == '__main__':
-    with open('9.png', 'rb') as fb:
+    with open('pipeline_test_request.png', 'rb') as fb:
         request_bytes = fb.read()
         response_json = invoke(request_bytes)
         print(response_json)
