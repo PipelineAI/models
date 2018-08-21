@@ -62,13 +62,14 @@ def _transform_request(request):
 
 
 def _transform_response(response):
+    print(response)
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
 
 
 if __name__ == '__main__':
-    with open('../input/predict/test_request.json', 'rb') as fb:
+    with open('./pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
         response_bytes = invoke(request_bytes)
         print(response_bytes)
