@@ -92,8 +92,9 @@ def define_mnist_flags():
   flags_core.define_image()
   flags.adopt_module_key_flags(flags_core)
   flags_core.set_defaults(data_dir='/tmp/mnist_data',
-                          model_dir='/tmp/mnist_model',
-                          batch_size=1024,
+                          model_dir='checkpoint/',
+                          export_dir='pipeline_tfserving',
+			  batch_size=1024,
                           train_epochs=2)
 
 
