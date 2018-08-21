@@ -72,31 +72,6 @@ def _check_pal(provided_pal_flag):
 Validators take the form that returning True (truthy) passes, and all others 
 (False, None, exception) fail.
 
-## Common Flags
-Common flags (i.e. batch_size, model_dir, etc.) are provided by various flag definition functions,
-and channeled through `official.utils.flags.core`. For instance to define common supervised
-learning parameters one could use the following code:
-
-```$xslt
-from absl import app as absl_app
-from absl import flags
-
-from official.utils.flags import core as flags_core
-
-
-def define_flags():
-  flags_core.define_base()
-  flags.adopt_key_flags(flags_core)
-  
-  
-def main(flags_obj):
-  pass
-  
-  
-if __name__ == "__main__"
-  absl_app.run(main)
-```
-
 ## Testing
 To test using absl, simply declare flags in the setupClass method of TensorFlow's TestCase.
 

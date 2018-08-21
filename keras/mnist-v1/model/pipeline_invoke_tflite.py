@@ -21,11 +21,12 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1',
-           'model_type': 'keras',
+           'model_tag': 'v3',
+           'model_type': 'tensorflow',
            'model_runtime': 'tflite',
            'model_chip': 'cpu',
           }
+
 
 def _initialize_upon_import():
     """ Initialize / Restore Model Object.
@@ -46,8 +47,10 @@ def _initialize_upon_import():
 
     return interpreter
 
+
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
+
 
 @log(labels=_labels, logger=_logger)
 def invoke(request):
@@ -67,12 +70,14 @@ def invoke(request):
 
     return transformed_response
 
+
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
     request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
 
     return request_np
+
 
 def _transform_response(response):
     classes_np = _model.get_tensor(response[0]['index'])[0].tolist()
@@ -81,6 +86,7 @@ def _transform_response(response):
     return json.dumps({"classes": classes_np,
                        "probabilities": probabilities
                       })
+
 
 if __name__ == '__main__':
     with open('../input/predict/test_request.json', 'rb') as fb:

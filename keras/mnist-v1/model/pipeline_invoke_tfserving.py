@@ -21,8 +21,8 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1',
-           'model_type': 'keras',
+           'model_tag': 'v3',
+           'model_type': 'tensorflow',
            'model_runtime': 'tfserving',
            'model_chip': 'cpu',
           }
@@ -70,3 +70,10 @@ def _transform_response(response):
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
+
+
+if __name__ == '__main__':
+    with open('../input/predict/test_request.json', 'rb') as fb:
+        request_bytes = fb.read()
+        response_bytes = invoke(request_bytes)
+        print(response_bytes)

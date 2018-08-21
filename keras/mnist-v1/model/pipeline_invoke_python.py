@@ -9,7 +9,7 @@ from pipeline_logger import log
 import tensorflow as tf
 from tensorflow.contrib import predictor
 
-_logger = logging.getLogger('pipelineai')
+_logger = logging.getLogger('pipeline-logger')
 _logger.setLevel(logging.INFO)
 _logger_stream_handler = logging.StreamHandler()
 _logger_stream_handler.setLevel(logging.INFO)
@@ -21,16 +21,15 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v1',
-           'model_type': 'keras',
+           'model_tag': 'v3',
+           'model_type': 'tensorflow',
            'model_runtime': 'python',
            'model_chip': 'cpu',
           }
 
 
 def _initialize_upon_import():
-    """ Initialize / Restore Model Object.
-    """
+    """Initialize / Restore Model Object."""
     saved_model_path = './pipeline_tfserving/0'
     return predictor.from_saved_model(saved_model_path)
 
@@ -63,12 +62,14 @@ def _transform_request(request):
 
 
 def _transform_response(response):
+    print(response)
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
 
+
 if __name__ == '__main__':
-    with open('../input/predict/test_request.json', 'rb') as fb:
+    with open('./pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
         response_bytes = invoke(request_bytes)
         print(response_bytes)

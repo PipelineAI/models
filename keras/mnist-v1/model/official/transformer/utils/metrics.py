@@ -58,8 +58,8 @@ def padded_cross_entropy_loss(logits, labels, smoothing, vocab_size):
     smoothing: Label smoothing constant, used to determine the on and off values
     vocab_size: int size of the vocabulary
   Returns:
-    Returns a float32 tensor with shape
-      [batch_size, max(length_logits, length_labels)]
+    Returns the cross entropy loss and weight tensors: float32 tensors with
+      shape [batch_size, max(length_logits, length_labels)]
   """
   with tf.name_scope("loss", [logits, labels]):
     logits, labels = _pad_tensors_to_same_length(logits, labels)
@@ -118,11 +118,19 @@ def get_eval_metrics(logits, labels, params):
       "accuracy_per_sequence": _convert_to_eval_metric(
           padded_sequence_accuracy)(logits, labels),
       "neg_log_perplexity": _convert_to_eval_metric(padded_neg_log_perplexity)(
-          logits, labels, params.vocab_size),
-      "approx_bleu_score": _convert_to_eval_metric(bleu_score)(logits, labels),
-      "rouge_2_fscore": _convert_to_eval_metric(rouge_2_fscore)(logits, labels),
-      "rouge_L_fscore": _convert_to_eval_metric(rouge_l_fscore)(logits, labels),
+          logits, labels, params["vocab_size"]),
   }
+
+  if not params["use_tpu"]:
+    # TPU does not support tf.py_func
+    metrics.update({
+        "approx_bleu_score": _convert_to_eval_metric(
+            bleu_score)(logits, labels),
+        "rouge_2_fscore": _convert_to_eval_metric(
+            rouge_2_fscore)(logits, labels),
+        "rouge_L_fscore": _convert_to_eval_metric(
+            rouge_l_fscore)(logits, labels),
+    })
 
   # Prefix each of the metric names with "metrics/". This allows the metric
   # graphs to display under the "metrics" category in TensorBoard.
