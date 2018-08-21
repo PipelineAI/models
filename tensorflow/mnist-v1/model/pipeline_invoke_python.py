@@ -21,7 +21,7 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v3',
+           'model_tag': 'v1',
            'model_type': 'tensorflow',
            'model_runtime': 'python',
            'model_chip': 'cpu',
@@ -58,6 +58,9 @@ def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
     request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
+    # Using the 'pipeline_test_request.npy' described here:  https://github.com/tensorflow/models/tree/master/official/mnist
+    # request_np = np.load('pipeline_test_request.npy')
+    # print(json.dumps(request_np.tolist()))
     return {"image": request_np}
 
 
