@@ -57,8 +57,18 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
-#    request_np = ((255 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
+
+    # Correct prediction 7, but doesn't normalize between 0 and 1
+    # Therefore, probabilities are 0 or 1 (not floating point)
+    #   (requires divide by 255.0)
+#    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
+
+    # Incorrect prediction 3, but divides by 255.0 and subtracts 255.0 (for some reason)
+#    request_np = ((255.0 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
+
+    # Correct prediction 7, but divides by 255.0 but doesn't subtract 255
+    request_np = (np.array(request_json['image'], dtype=np.float32)  / 255.0).reshape(1, 28, 28)
+
     # Using the 'pipeline_test_request.npy' described here:  https://github.com/tensorflow/models/tree/master/official/mnist
     # request_np = np.load('pipeline_test_request.npy')
     # print(json.dumps(request_np.tolist()))
