@@ -21,7 +21,7 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v3',
+           'model_tag': 'retrain',
            'model_type': 'tensorflow',
            'model_runtime': 'tfserving',
            'model_chip': 'cpu',
@@ -61,7 +61,7 @@ def invoke(request):
 def _transform_request(request):
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    request_np = np.array(request_json['image'], dtype=np.float32).reshape(1, 28, 28)
+    request_np = (np.array(request_json['image'], dtype=np.float32)  / 255.0).reshape(1, 28, 28)
     image_tensor = tf.make_tensor_proto(request_np, dtype=tf.float32)
     return {"image": image_tensor}
 
@@ -73,7 +73,7 @@ def _transform_response(response):
 
 
 if __name__ == '__main__':
-    with open('../input/predict/test_request.json', 'rb') as fb:
+    with open('./pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
         response_bytes = invoke(request_bytes)
         print(response_bytes)

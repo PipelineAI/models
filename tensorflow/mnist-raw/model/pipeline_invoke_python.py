@@ -95,9 +95,9 @@ def _transform_request(request):
     sess = tf.Session()
     with sess.as_default():
         request_np = request_image_tensor_resized.eval()
-        reshaped_request_np = request_np.reshape(1, 28, 28)
+        request_np = (request_np / 255.0).reshape(1, 28, 28)
 
-    return {"image": reshaped_request_np}
+    return {"image": request_np}
 
 
 def _transform_response(response):
@@ -109,7 +109,7 @@ def _transform_response(response):
 
 
 if __name__ == '__main__':
-    with open('pipeline_test_request.png', 'rb') as fb:
+    with open('./pipeline_test_request.png', 'rb') as fb:
         request_bytes = fb.read()
         response_json = invoke(request_bytes)
         print(response_json)
