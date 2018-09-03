@@ -67,7 +67,7 @@ def _transform_request(request):
 #    request_np = ((255.0 - np.array(request_json['image'], dtype=np.uint8)) / 255.0).reshape(1, 28, 28)
 
     # Correct prediction 7, but divides by 255.0 but doesn't subtract 255
-    request_np = (np.array(request_json['image'], dtype=np.float32)  / 255.0).reshape(1, 28, 28)
+    request_np = (np.array(request_json['image'], dtype=np.float32) / 255.0).reshape(1, 28, 28)
 
     # Using the 'pipeline_test_request.npy' described here:  https://github.com/tensorflow/models/tree/master/official/mnist
     # request_np = np.load('pipeline_test_request.npy')
