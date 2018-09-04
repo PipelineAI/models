@@ -5,7 +5,7 @@ import pipeline_invoke
 import os
 
 if __name__ == '__main__':
-    with open('../input/predict/test_request.json', 'rb') as fh:
+    with open('./pipeline_test_request.json', 'rb') as fh:
         request_binary = fh.read()
   
     response = pipeline_invoke.invoke(request_binary)
