@@ -21,7 +21,7 @@ __all__ = ['invoke']
 
 _labels = {
            'model_name': 'mnist',
-           'model_tag': 'v3',
+           'model_tag': 'v1',
            'model_type': 'tensorflow',
            'model_runtime': 'tflite',
            'model_chip': 'cpu',
@@ -76,7 +76,7 @@ def _transform_request(request):
     request_json = json.loads(request_str)
 
     # Normalizing between 0.0 and 1.0 by dividing by 255.0
-    request_np = (np.array(request_json['image'], dtype=np.float32)  / 255.0).reshape(1, 28, 28)
+    request_np = (np.array(request_json['image'], dtype=np.float32) / 255.0).reshape(1, 28, 28)
 
     return request_np
 

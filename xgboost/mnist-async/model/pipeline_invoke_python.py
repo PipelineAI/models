@@ -123,7 +123,7 @@ _model = _initialize_upon_import()
 
 
 async def main():
-    with open('../input/predict/test_request.json', 'rb') as fb:
+    with open('./pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
         response_bytes = await invoke(request_bytes)
         return response_bytes
