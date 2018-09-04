@@ -113,7 +113,7 @@ def _transform_request(request: bytes) -> xgb.DMatrix:
     """
     request_str = request.decode('utf-8')
     request_json = json.loads(request_str)
-    nda = np.array(request_json['image'], dtype=np.uint8).reshape(1, 784)
+    nda = (np.array(request_json['image'], dtype=np.uint8) / 255.0).reshape(1, 784)
     dnda = xgb.DMatrix(nda)
     return dnda
 
@@ -136,7 +136,7 @@ def _transform_response(response: np.ndarray) -> str:
 
 
 if __name__ == '__main__':
-    with open('../input/predict/test_request.json', 'rb') as fb:
+    with open('./pipeline_test_request.json', 'rb') as fb:
         request_bytes = fb.read()
         response_bytes = invoke(request_bytes)
         print(response_bytes)
