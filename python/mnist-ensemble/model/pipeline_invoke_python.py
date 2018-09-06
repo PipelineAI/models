@@ -76,7 +76,7 @@ def invoke(request):
     #       * Regression:  Average the result
     # TODO: Include all models that participated in the response (including confidences, timings, etc)
 
-	response = response_c
+    response = response_c
 
     with monitor(labels=_labels, name="transform_response"):
         transformed_response = _transform_response(response)
@@ -95,7 +95,7 @@ def _transform_response(response):
     return json.dumps({"classes": response['classes'].tolist(),
                        "probabilities": response['probabilities'].tolist(),
                       })
-i
+
 
 # Note:  This is a mini test
 if __name__ == '__main__':
