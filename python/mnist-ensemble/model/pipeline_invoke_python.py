@@ -28,8 +28,8 @@ _labels = {
 # There is no model to import.
 # This function is merely calling other functions/models
 #   and aggregating the results.
-def _initialize_upon_import():
-    return
+# def _initialize_upon_import():
+#    return
 
 
 # This is called unconditionally at *module import time*...
@@ -50,21 +50,19 @@ def invoke(request):
 
         # TODO: Can we use internal dns name (predict-mnist)
         # TODO: Pass along the request-tracing headers
-#        url_model_a = 'https://community.cloud.pipeline.ai/predict/83f05e58/mnista/invoke'
-#        response_a = requests.post(
-#            url=url_model_a,
-#            data=transformed_request,
-#            timeout=timeout_seconds
-#        )
+        url_model_a = 'https://community.cloud.pipeline.ai/predict/83f05e58/mnista/invoke'
+        response_a = requests.post(
+            url=url_model_a,
+            data=transformed_request,
+            timeout=timeout_seconds
+        )
 
-#        url_model_b = 'https://community.cloud.pipeline.ai/predict/83f05e58/mnistb/invoke'
-#        response_b = requests.post(
-#            url=url_model_b,
-#            data=transformed_request,
-#            timeout=timeout_seconds
-#        )
-
-        print(transformed_request)
+        url_model_b = 'https://community.cloud.pipeline.ai/predict/83f05e58/mnistb/invoke'
+        response_b = requests.post(
+            url=url_model_b,
+            data=transformed_request,
+            timeout=timeout_seconds
+        )
 
         url_model_c = 'https://community.cloud.pipeline.ai/predict/83f05e58/mnist/invoke'
         response_c = requests.post(
@@ -73,13 +71,12 @@ def invoke(request):
             timeout=timeout_seconds
         )
 
-        print(response_c.text)
     # TODO: Aggregate the responses into a single response
     #       * Classification:  Return the majority class from all predicted classes
     #       * Regression:  Average the result
     # TODO: Include all models that participated in the response (including confidences, timings, etc)
 
-    response = response_c.json()
+    response = [response_a.json(), response_b.json(), response_c.json()]
 
     with monitor(labels=_labels, name="transform_response"):
         transformed_response = _transform_response(response)
@@ -88,16 +85,18 @@ def invoke(request):
 
 
 def _transform_request(request):
-    request_str = request.decode('utf-8')
-    request_json = json.loads(request_str)
-    request_np = (np.array(request_json['image'], dtype=np.float32) / 255.0).reshape(1, 28, 28)
-    return {"image": request_np}
+#    request_str = request.decode('utf-8')
+#    request_json = json.loads(request_str)
+#    request_np = (np.array(request_json['image'], dtype=np.float32) / 255.0).reshape(1, 28, 28)
+#    return {"image": json.load(request_np)}
+    return request
 
 
 def _transform_response(response):
-    return json.dumps({"classes": response['classes'].tolist(),
-                       "probabilities": response['probabilities'].tolist(),
-                      })
+#    return json.dumps({"classes": response['classes'].tolist(),
+#                       "probabilities": response['probabilities'].tolist(),
+#                      })
+    return response
 
 
 # Note:  This is a mini test
