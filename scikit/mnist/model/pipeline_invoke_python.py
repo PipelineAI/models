@@ -56,4 +56,4 @@ def _transform_request(request):
 
 def _transform_response(response):
     response_np = response.data.tolist()[0]
-    return json.dumps({"outputs": response_np})
+    return json.dumps({"classes": response_np})
