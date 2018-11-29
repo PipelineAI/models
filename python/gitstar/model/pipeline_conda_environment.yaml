@@ -1,0 +1,8 @@
+dependencies:
+  - python=3.6.1=2
+  - pip:
+    - pipeline-runtime==1.0.8
+    - requests==2.19.1
+    - slackclient==1.2.1
+    - tweepy==3.6.0
+    - tensorflow==1.12.0
