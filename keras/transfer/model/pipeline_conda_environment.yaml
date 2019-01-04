@@ -7,4 +7,5 @@ dependencies:
 # These are required
     - pandas
     - scipy
-    - pillow 
+    - pillow
+    - matplotlib

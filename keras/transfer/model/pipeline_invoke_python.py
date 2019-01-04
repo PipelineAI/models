@@ -2,6 +2,9 @@ import os
 import numpy as np
 import json
 import logging
+import random
+import urllib.request
+from urllib.parse import unquote
 
 from pipeline_monitor import prometheus_monitor as monitor
 from pipeline_logger import log
@@ -60,19 +63,30 @@ def invoke(request):
     return transformed_response
 
 
-import random
-import urllib.request
-
 def download_image(url):
     name = random.randrange(1,100000)
-    fullname = str(name)+".pimg"
+    fullname = '/tmp/' + str(name) + ".img"
     urllib.request.urlretrieve(url, fullname)     
     return fullname
 
+
 def _transform_request(request):
-    if 'http' in request:
+    request = request.decode('utf-8')
+    request = unquote(request) 
+
+    # Direct http example
+    if request.startswith('http'):
         request = download_image(request)
-                
+    else:
+        # Slack Label Example
+        request_array = request.split('&')
+        print(request_array)
+
+        result = [value for value in request_array if value.startswith('text=')]
+        if len(result) > 0:
+            request = download_image(result[0][5:])
+            print(request)
+               
     predict_img = image.load_img(request, target_size=(224, 224))
     predict_img_array = image.img_to_array(predict_img)
     predict_img_array = np.expand_dims(predict_img_array, axis=0)
@@ -89,7 +103,10 @@ def _transform_response(response):
 
 if __name__ == '__main__':
 #    request = './images/predict/cat.jpg'
-    request = 'http://site.meishij.net/r/58/25/3568808/a3568808_142682562777944.jpg'
+#    request = b'http%3A%2F%2Fsite.meishij.net%2Fr%2F58%2F25%2F3568808%2Fa3568808_142682562777944.jpg'
+
+    request = b'token=ncx3XaUkJTXbGmVUoeO5HdKI&team_id=T6QHWMRD4&team_domain=pipelineai&channel_id=G9L5CFPHD&channel_name=privategroup&user_id=U6P5F90E5&user_name=cfregly&command=/predict&text=https://avatars1.githubusercontent.com/u/1438064?s=460&v=4&response_url=https://hooks.slack.com/commands/T6QHWMRD4/516521813893/rnZVzpibSOZ4TqIkq7MaSjPQ&trigger_id=515584150832.228608739446.0381131e21d800f95e33fbeb038e03d3'
+
     response = invoke(request)
     print(response)
 #    with open('./pipeline_test_request.json', 'rb') as fb:

@@ -34,7 +34,12 @@ x = Dense(1024, activation='relu')(x) #we add dense layers so that the model can
 x = Dense(1024, activation='relu')(x) #dense layer 2
 x = Dense(512, activation='relu')(x) #dense layer 3
 
-classes = glob.glob("./images/train/*")
+
+# bad data, batch_size must = 1 or else we see ProgBar issue (not enough samples to fill a batch)
+image_path = './images/train.bad'
+batch_size = 1
+
+classes = glob.glob(image_path + '/*')
 num_classes = len(classes)
 
 preds = Dense(num_classes, activation='softmax')(x) #final layer with softmax activation
@@ -46,16 +51,14 @@ for layer in model.layers[:20]:
 for layer in model.layers[20:]:
     layer.trainable=True
 
-
 train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input) #included in our dependencies
 
-train_generator = train_datagen.flow_from_directory('./images/train/', 
-                                                 target_size=(224,224),
-                                                 color_mode='rgb',
-                                                 batch_size=32,
-                                                 class_mode='categorical',
-                                                 shuffle=True)
-
+train_generator = train_datagen.flow_from_directory(image_path, 
+                                                    target_size=(224,224),
+                                                    color_mode='rgb',
+                                                    batch_size=batch_size,
+                                                    class_mode='categorical',
+                                                    shuffle=True)
 
 model.compile(optimizer='Adam',loss='categorical_crossentropy',metrics=['accuracy'])
 # Adam optimizer
