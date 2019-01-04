@@ -7,4 +7,4 @@ dependencies:
 # These are required
     - pandas
     - scipy
-    - PIL
+    - pillow 
