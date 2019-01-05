@@ -35,11 +35,13 @@ x = Dense(1024, activation='relu')(x) #dense layer 2
 x = Dense(512, activation='relu')(x) #dense layer 3
 
 
-# bad data, batch_size must = 1 or else we see ProgBar issue (not enough samples to fill a batch)
-image_path = './images/train.bad'
-batch_size = 1
+# when using small data (ie. ./images/train.bad), 
+#   batch_size must = 1 or else we see ProgBar issue (not enough samples to fill a batch)
+image_path = './images/train'
+batch_size = 32
+num_epochs = 5
 
-classes = glob.glob(image_path + '/*')
+classes = sorted(glob.glob(image_path + '/*'))
 num_classes = len(classes)
 
 preds = Dense(num_classes, activation='softmax')(x) #final layer with softmax activation
@@ -68,7 +70,7 @@ model.compile(optimizer='Adam',loss='categorical_crossentropy',metrics=['accurac
 step_size_train = train_generator.n//train_generator.batch_size
 model.fit_generator(generator=train_generator,
                    steps_per_epoch=step_size_train,
-                   epochs=1)
+                   epochs=num_epochs)
 
 saved_model_path = tf.contrib.saved_model.save_keras_model(model, "./pipeline_tfserving")
 
@@ -109,6 +111,30 @@ print('%s: %s' % (img_path, prediction[0]))
 
 # Cat pic
 img_path = './images/predict/cat.jpg'
+
+predict_img = image.load_img(img_path, target_size=(224, 224))
+predict_img_array = image.img_to_array(predict_img)
+predict_img_array = np.expand_dims(predict_img_array, axis=0)
+predict_preprocess_img = preprocess_input(predict_img_array)
+
+prediction = loaded_model.predict(predict_preprocess_img)
+print('%s: %s' % (img_path, prediction[0]))
+#print(classes[np.argmax(prediction[0])])
+
+# Dog pic
+img_path = './images/predict/dog.jpg'
+
+predict_img = image.load_img(img_path, target_size=(224, 224))
+predict_img_array = image.img_to_array(predict_img)
+predict_img_array = np.expand_dims(predict_img_array, axis=0)
+predict_preprocess_img = preprocess_input(predict_img_array)
+
+prediction = loaded_model.predict(predict_preprocess_img)
+print('%s: %s' % (img_path, prediction[0]))
+#print(classes[np.argmax(prediction[0])])
+
+# Horse pic
+img_path = './images/predict/horse.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)

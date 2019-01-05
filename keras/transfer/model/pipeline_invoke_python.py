@@ -42,7 +42,7 @@ def _initialize_upon_import():
     loaded_model = tf.contrib.saved_model.load_keras_model(saved_model_path)
     return loaded_model
 
-_classes_list = glob.glob("./images/train/*")
+_classes_list = sorted(glob.glob("./images/train/*"))
 
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
@@ -105,7 +105,7 @@ if __name__ == '__main__':
 #    request = './images/predict/cat.jpg'
 #    request = b'http%3A%2F%2Fsite.meishij.net%2Fr%2F58%2F25%2F3568808%2Fa3568808_142682562777944.jpg'
 
-    request = b'token=ncx3XaUkJTXbGmVUoeO5HdKI&team_id=T6QHWMRD4&team_domain=pipelineai&channel_id=G9L5CFPHD&channel_name=privategroup&user_id=U6P5F90E5&user_name=cfregly&command=/predict&text=https://avatars1.githubusercontent.com/u/1438064?s=460&v=4&response_url=https://hooks.slack.com/commands/T6QHWMRD4/516521813893/rnZVzpibSOZ4TqIkq7MaSjPQ&trigger_id=515584150832.228608739446.0381131e21d800f95e33fbeb038e03d3'
+    request = b'token=asdasd&team_id=T6QHWMRD4&team_domain=pipelineai&channel_id=adfasdf&channel_name=privategroup&user_id=asdfasdf&user_name=cfregly&command=/predict&text=https://images.ctfassets.net/kvimhx6nhg7h/5WclEHFxUksuS2IwsUECE6/a29fa96920666f9d4eb7c456403e4f9d/Tan-cat-in-a-cone.png&response_url=https://hooks.slack.com/commands/T/5/r&trigger_id=3d3'
 
     response = invoke(request)
     print(response)
