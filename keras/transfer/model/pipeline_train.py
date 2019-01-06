@@ -9,12 +9,7 @@ import numpy as np
 import os
 from tensorflow import keras
 
-import matplotlib.pyplot as plt
-
 import tensorflow as tf
-
-print(tf.VERSION)
-print(tf.keras.__version__)
 
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 from tensorflow.keras.applications import MobileNet
@@ -25,6 +20,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 import glob
+
+print(tf.VERSION)
+print(tf.keras.__version__)
 
 base_model = MobileNet(weights='imagenet', include_top=False) #imports the mobilenet model and discards the last 1000 neuron layer.
 
@@ -78,39 +76,8 @@ loaded_model = tf.contrib.saved_model.load_keras_model(saved_model_path)
 
 print('Classes: %s' % classes)
 
-# Shark pic
-img_path = './images/predict/shark.jpg' 
-
-predict_img = image.load_img(img_path, target_size=(224, 224))
-predict_img_array = image.img_to_array(predict_img)
-predict_img_array = np.expand_dims(predict_img_array, axis=0)
-predict_preprocess_img = preprocess_input(predict_img_array)
- 
-prediction = loaded_model.predict(predict_preprocess_img)
-print('%s: %s' % (img_path, prediction[0]))
-#print(classes[np.argmax(prediction[0])])
-
-# This shows the following error:
-#   ValueError: `decode_predictions` expects a batch of predictions (i.e. a 2D array of shape (samples, 1000)). Found array with shape: (1, 3)
-# Possibly because the original model isn't saved/loaded with the tf.contrib.saved_model utility above (known issue)
-
-# decoded_prediction = decode_predictions(prediction)
-# print(decoded_prediction)
-
-# Fregly pic
-img_path = './images/predict/fregly.png'
-
-predict_img = image.load_img(img_path, target_size=(224, 224))
-predict_img_array = image.img_to_array(predict_img)
-predict_img_array = np.expand_dims(predict_img_array, axis=0)
-predict_preprocess_img = preprocess_input(predict_img_array)
-
-prediction = loaded_model.predict(predict_preprocess_img)
-print('%s: %s' % (img_path, prediction[0]))
-#print(classes[np.argmax(prediction[0])])
-
 # Cat pic
-img_path = './images/predict/cat.jpg'
+img_path = './images/predict/cats/cat.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
@@ -122,7 +89,7 @@ print('%s: %s' % (img_path, prediction[0]))
 #print(classes[np.argmax(prediction[0])])
 
 # Dog pic
-img_path = './images/predict/dog.jpg'
+img_path = './images/predict/dogs/dog.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
@@ -134,7 +101,7 @@ print('%s: %s' % (img_path, prediction[0]))
 #print(classes[np.argmax(prediction[0])])
 
 # Horse pic
-img_path = './images/predict/horse.jpg'
+img_path = './images/predict/horses/horse.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
