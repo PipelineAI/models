@@ -4,7 +4,7 @@ import logging
 import requests
 import urllib
 import subprocess
-import tweepy
+#import tweepy
 import inception
 
 from pipeline_monitor import prometheus_monitor as monitor
