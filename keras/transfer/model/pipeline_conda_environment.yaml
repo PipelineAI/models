@@ -8,5 +8,3 @@ dependencies:
     - pandas
     - scipy
     - pillow
-    - "git+https://github.com/tensorflow/privacy#egg=privacy"
-
