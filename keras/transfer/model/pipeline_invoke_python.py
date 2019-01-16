@@ -42,7 +42,7 @@ def _initialize_upon_import():
     loaded_model = tf.contrib.saved_model.load_keras_model(saved_model_path)
     return loaded_model
 
-_classes_list = sorted(glob.glob("./images/train/*"))
+_classes_list = sorted(glob.glob("./images/predict/*"))
 
 # This is called unconditionally at *module import time*...
 _model = _initialize_upon_import()
