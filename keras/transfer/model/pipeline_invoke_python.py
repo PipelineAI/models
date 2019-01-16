@@ -96,8 +96,11 @@ def _transform_request(request):
 
 
 def _transform_response(response):
-    return json.dumps({"classes": _classes_list,
-                       "probabilities": response.tolist()[0],
+
+    # response_formatted = '\\n '.join("%s%%\t%s" % (str((100 * item['score']))[0:4], item['name']) for item in classification_response_json)
+
+    return json.dumps({"classes": [item.split('/')[-1] for item in _classes_list], 
+                       "probabilities": ['%.2f%%' % (item * 100) for item in response.tolist()[0]],
                       })
 
 

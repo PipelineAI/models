@@ -77,7 +77,7 @@ loaded_model = tf.contrib.saved_model.load_keras_model(saved_model_path)
 print('Classes: %s' % classes)
 
 # Cat pic
-img_path = './images/predict/cats/cat.jpg'
+img_path = './images/predict/cat/cat.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
@@ -89,7 +89,7 @@ print('%s: %s' % (img_path, prediction[0]))
 #print(classes[np.argmax(prediction[0])])
 
 # Dog pic
-img_path = './images/predict/dogs/dog.jpg'
+img_path = './images/predict/dog/dog.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
@@ -101,7 +101,7 @@ print('%s: %s' % (img_path, prediction[0]))
 #print(classes[np.argmax(prediction[0])])
 
 # Horse pic
-img_path = './images/predict/horses/horse.jpg'
+img_path = './images/predict/horse/horse.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
