@@ -1,3 +1,5 @@
 images/train/
 images/train.bad/
 images/train.good/
+pipeline_tfserving/bad/
+pipeline_tfserving/good/

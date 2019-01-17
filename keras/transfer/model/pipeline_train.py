@@ -36,7 +36,7 @@ x = Dense(512, activation='relu')(x) #dense layer 3
 # when using small data (ie. ./images/train.bad), 
 #   batch_size must = 1 or else we see ProgBar issue (not enough samples to fill a batch)
 image_path = './images/train'
-batch_size = 32
+batch_size = 2
 num_epochs = 5
 
 classes = sorted(glob.glob(image_path + '/*'))
@@ -90,18 +90,6 @@ print('%s: %s' % (img_path, prediction[0]))
 
 # Dog pic
 img_path = './images/predict/dog/dog.jpg'
-
-predict_img = image.load_img(img_path, target_size=(224, 224))
-predict_img_array = image.img_to_array(predict_img)
-predict_img_array = np.expand_dims(predict_img_array, axis=0)
-predict_preprocess_img = preprocess_input(predict_img_array)
-
-prediction = loaded_model.predict(predict_preprocess_img)
-print('%s: %s' % (img_path, prediction[0]))
-#print(classes[np.argmax(prediction[0])])
-
-# Horse pic
-img_path = './images/predict/horse/horse.jpg'
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
