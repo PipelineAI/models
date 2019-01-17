@@ -1,0 +1,10 @@
+dependencies:
+  - python=3.6
+  - pip:
+    - grpcio>=1.0
+    - tensorflow==1.12.0
+    - pipeline-runtime==1.0.8
+# These are required
+    - pandas
+    - scipy
+    - pillow
