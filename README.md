@@ -23,8 +23,11 @@ Install mlflow via `pip install mlflow`
 
 # Requirements
 Python 3.6 (tensorflow is currently unsupported by Python 3.7)
+
 Install tensorflow via `pip install tensorflow`
+
 Install keras via `pip install keras`
+
 Install PIL via `pip install pillow`
 
 # Running Example
@@ -32,5 +35,7 @@ Install PIL via `pip install pillow`
 
 # Launching UI
 The MLflow Tracking UI will run at `<http://localhost:5000>`_.
+
 `mlflow ui`
+
 **Note** `mlflow ui` will not run from within the cloned repo.
