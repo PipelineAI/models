@@ -34,11 +34,15 @@ Install keras via `pip install keras`
 Install PIL via `pip install pillow`
 
 # Running Example
-```mlflow run example/flower_classifier --no-conda```
+```
+mlflow run example/flower_classifier --no-conda
+```
 
 # Launching UI
 The MLflow Tracking UI will run at http://localhost:5000. Start it with:
 
-```mlflow ui```
+```
+mlflow ui
+```
 
 **Note:** `mlflow ui` will not run from within the cloned repo.
