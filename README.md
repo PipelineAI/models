@@ -18,6 +18,9 @@ Train and Deploy your ML and AI Models in the Following Environments:
 * Webinar:  https://webinar.pipeline.ai
 * [Troubleshooting Guide](/docs/troubleshooting)
 
+# Cloning MLflow
+Clone MLflow repo at https://github.com/mlflow/mlflow
+
 # Installing MLflow
 Install mlflow via `pip install mlflow`
 
@@ -34,7 +37,7 @@ Install PIL via `pip install pillow`
 `mlflow run example/flower_classifier --no-conda`
 
 # Launching UI
-The MLflow Tracking UI will run at `_<http://localhost:5000>`_. Start it with::
+The MLflow Tracking UI will run at http://localhost:5000. Start it with:
 
 `mlflow ui`
 
