@@ -34,7 +34,7 @@ Install PIL via `pip install pillow`
 `mlflow run example/flower_classifier --no-conda`
 
 # Launching UI
-The MLflow Tracking UI will run at `<http://localhost:5000>`_.
+The MLflow Tracking UI will run at `_<http://localhost:5000>`_. Start it with::
 
 `mlflow ui`
 
