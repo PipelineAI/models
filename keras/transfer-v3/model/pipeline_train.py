@@ -33,11 +33,16 @@ x = Dense(1024, activation='relu')(x) #dense layer 2
 x = Dense(512, activation='relu')(x) #dense layer 3
 
 
-# when using small data (ie. ./images/train.bad), 
+# when using small data (ie. ./images/train.bad),
 #   batch_size must = 1 or else we see ProgBar issue (not enough samples to fill a batch)
 image_path = './images/train'
-batch_size = 32
-num_epochs = 5
+image_path = os.path.expandvars(image_path)
+image_path = os.path.expanduser(image_path)
+image_path = os.path.abspath(image_path)
+image_path = os.path.normpath(image_path)
+
+batch_size = 1
+num_epochs = 1
 
 classes = sorted(glob.glob(image_path + '/*'))
 num_classes = len(classes)
@@ -53,7 +58,7 @@ for layer in model.layers[20:]:
 
 train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input) #included in our dependencies
 
-train_generator = train_datagen.flow_from_directory(image_path, 
+train_generator = train_datagen.flow_from_directory(image_path,
                                                     target_size=(224,224),
                                                     color_mode='rgb',
                                                     batch_size=batch_size,
@@ -78,6 +83,10 @@ print('Classes: %s' % classes)
 
 # Cat pic
 img_path = './images/predict/cat/cat.jpg'
+img_path = os.path.expandvars(img_path)
+img_path = os.path.expanduser(img_path)
+img_path = os.path.abspath(img_path)
+img_path = os.path.normpath(img_path)
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
@@ -90,6 +99,10 @@ print('%s: %s' % (img_path, prediction[0]))
 
 # Dog pic
 img_path = './images/predict/dog/dog.jpg'
+img_path = os.path.expandvars(img_path)
+img_path = os.path.expanduser(img_path)
+img_path = os.path.abspath(img_path)
+img_path = os.path.normpath(img_path)
 
 predict_img = image.load_img(img_path, target_size=(224, 224))
 predict_img_array = image.img_to_array(predict_img)
@@ -99,4 +112,3 @@ predict_preprocess_img = preprocess_input(predict_img_array)
 prediction = loaded_model.predict(predict_preprocess_img)
 print('%s: %s' % (img_path, prediction[0]))
 #print(classes[np.argmax(prediction[0])])
-
