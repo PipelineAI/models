@@ -1,0 +1,7 @@
+name: transfer 
+
+conda_env: pipeline_conda_environment.yaml
+
+entry_points:
+  main:
+    command: "python pipeline_train.py"
