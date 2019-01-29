@@ -5,6 +5,7 @@
 import os
 import warnings
 import sys
+import time 
 
 import pandas as pd
 import numpy as np
@@ -25,6 +26,12 @@ def eval_metrics(actual, pred):
 
 
 if __name__ == "__main__":
+    #mlflow.set_tracking_uri('http://52.42.75.92:31980')
+    mlflow.set_tracking_uri('https://community.cloud.pipeline.ai/admin/tracking/')
+
+    # This will create and set the experiment
+    mlflow.set_experiment(str(int(time.time()))[2:] + 'wine-v1') 
+
     warnings.filterwarnings("ignore")
     np.random.seed(40)
 
@@ -64,3 +71,5 @@ if __name__ == "__main__":
         mlflow.log_metric("mae", mae)
 
         mlflow.sklearn.log_model(lr, "model")
+
+        print(mlflow.get_artifact_uri())

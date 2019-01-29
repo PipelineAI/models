@@ -1,0 +1,10 @@
+name: mlflow-wine
+
+conda_env: pipeline_conda_environment.yaml
+
+entry_points:
+  main:
+    parameters:
+      alpha: float
+      l1_ratio: {type: float, default: 0.1}
+    command: "python pipeline_train.py {alpha} {l1_ratio}"
