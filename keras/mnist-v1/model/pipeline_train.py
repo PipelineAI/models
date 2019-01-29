@@ -27,6 +27,7 @@ from official.utils.logs import hooks_helper
 from official.utils.misc import distribution_utils
 from official.utils.misc import model_helpers
 
+tf.flags.DEFINE_string('export_dir', './pipeline_tfserving/0', 'Export dir')
 
 LEARNING_RATE = 1e-4
 

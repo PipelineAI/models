@@ -3,6 +3,4 @@ dependencies:
   - pip:
     - grpcio>=1.0
     - tensorflow==1.12.0
-    - mpmath
-    - scipy
     - pipeline-runtime==1.0.8
