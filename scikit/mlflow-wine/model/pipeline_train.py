@@ -26,8 +26,7 @@ def eval_metrics(actual, pred):
 
 
 if __name__ == "__main__":
-    #mlflow.set_tracking_uri('http://52.42.75.92:31980')
-    mlflow.set_tracking_uri('https://community.cloud.pipeline.ai/admin/tracking/')
+    #mlflow.set_tracking_uri('http://mlflow-tracking-host:port')
 
     # This will create and set the experiment
     mlflow.set_experiment(str(int(time.time()))[2:] + 'wine-v1') 
