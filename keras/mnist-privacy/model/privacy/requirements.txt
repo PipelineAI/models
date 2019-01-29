@@ -1,3 +1,0 @@
-tensorflow
-mpmath
-scipy

@@ -31,11 +31,12 @@ tf.flags.DEFINE_float('learning_rate', 0.08, 'Learning rate for training')
 tf.flags.DEFINE_float('noise_multiplier', 1.12,
                       'Ratio of the standard deviation to the clipping norm')
 tf.flags.DEFINE_float('l2_norm_clip', 1.0, 'Clipping norm')
-tf.flags.DEFINE_integer('batch_size', 256, 'Batch size')
-tf.flags.DEFINE_integer('epochs', 5, 'Number of epochs')
-tf.flags.DEFINE_integer('microbatches', 256,
+tf.flags.DEFINE_integer('batch_size', 32, 'Batch size')
+tf.flags.DEFINE_integer('epochs', 1, 'Number of epochs')
+tf.flags.DEFINE_integer('microbatches', 32,
                         'Number of microbatches (must evenly divide batch_size')
 tf.flags.DEFINE_string('model_dir', None, 'Model directory')
+tf.flags.DEFINE_string('export_dir', './pipeline_tfserving/0', 'Export dir')
 
 FLAGS = tf.flags.FLAGS
 
@@ -185,6 +186,15 @@ def main(unused_argv):
       print('For delta=1e-5, the current epsilon is: %.2f' % eps)
     else:
       print('Trained with vanilla non-private SGD optimizer')
+
+  # Export the model
+  if FLAGS.export_dir is not None:
+    # [-1, 28, 28, 1]
+    image = tf.placeholder(tf.float32, [None, 28, 28])
+    input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
+        'x': image,
+    })
+    mnist_classifier.export_savedmodel(FLAGS.export_dir, input_fn)
 
 if __name__ == '__main__':
   tf.app.run()
