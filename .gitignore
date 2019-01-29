@@ -1,3 +1,4 @@
+mlruns/
 .idea/
 basicdnn*
 *.tar.gz
