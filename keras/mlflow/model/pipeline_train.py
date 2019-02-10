@@ -315,6 +315,7 @@ def train(image_files,
                 plt.xlabel('Epoch')
                 plt.legend(['Train', 'Test'], loc='upper left')
                 plt.show()
+                plt.savefig('training_accuracy.png')
 
                 # Plot training & validation loss values
                 plt.plot(history.history['loss'])
@@ -326,7 +327,7 @@ def train(image_files,
                 plt.show()
 
                 # plot_history(history.history)
-                plt.savefig('training_charts.png')
+                plt.savefig('training_loss.png')
                 #slack_update.file_upload(path='training_charts.png',
                 #                         title='Charts')
             
