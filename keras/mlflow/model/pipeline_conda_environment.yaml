@@ -13,3 +13,4 @@ dependencies:
     - click==6.7
     - scikit-learn
     - pillow
+    - matplotlib

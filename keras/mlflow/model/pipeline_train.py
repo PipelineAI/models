@@ -17,10 +17,82 @@ from keras.layers import Input, Dense, Flatten, Lambda
 import numpy as np
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
-
 import mlflow
 
 from image_pyfunc import decode_and_resize_image, log_model, KerasImageClassifierPyfunc
+
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+plt.style.use('fivethirtyeight')
+
+#from utils import plot_history
+#import matplotlib.pyplot as plt
+#
+# See https://nbviewer.jupyter.org/github/WillKoehrsen/Data-Analysis/blob/master/slack_interaction/Interacting%20with%20Slack.ipynb for more details.
+#
+class SlackUpdate(Callback):
+
+    """Custom Keras callback that posts to Slack while training a neural network"""
+
+    def __init__(self, 
+                 channel,
+                 slack_webhook_url):
+
+        self.channel = channel
+        self.slack_webhook_url = slack_webhook_url 
+
+    def file_upload(self,
+                    path,
+                    title):
+        pass
+
+    def report_stats(self, text):
+        """Report training stats"""
+
+        import subprocess
+        try:
+            cmd = 'curl -X POST --data-urlencode "payload={\\"unfurl_links\\": true, \\"channel\\": \\"%s\\", \\"username\\": \\"pipelineai_bot\\", \\"text\\": \\"%s\\"}" %s' % (self.channel, text, self.slack_webhook_url)
+
+            response = subprocess.check_output(cmd, shell=True).decode('utf-8')
+            return True
+        except:
+            return False
+
+    def on_train_begin(self, logs={}):
+        from timeit import default_timer as timer 
+        self.report_stats(text=f'Training started at {datetime.now()}')
+
+        self.start_time = timer()
+        self.train_acc = []
+        self.valid_acc = []
+        self.train_loss = []
+        self.valid_loss = []
+        self.n_epochs = 0
+
+    def on_epoch_end(self, batch, logs={}):
+
+        self.train_acc.append(logs.get('acc'))
+        self.valid_acc.append(logs.get('val_acc'))
+        self.train_loss.append(logs.get('loss'))
+        self.valid_loss.append(logs.get('val_loss'))
+        self.n_epochs += 1
+
+        message = f'Epoch: {self.n_epochs} Training Loss: {self.train_loss[-1]:.4f} Validation Loss: {self.valid_loss[-1]:.4f}'
+
+        self.report_stats(message)
+
+    def on_train_end(self, logs={}):
+        best_epoch = np.argmin(self.valid_loss)
+        valid_loss = self.valid_loss[best_epoch]
+        train_loss = self.train_loss[best_epoch]
+        train_acc = self.train_acc[best_epoch]
+        valid_acc = self.valid_acc[best_epoch]
+
+        message = f'Trained for {self.n_epochs} epochs. Best epoch was {best_epoch + 1}.'
+        self.report_stats(message)
+        message = f'Best validation loss = {valid_loss:.4f} Training Loss = {train_loss:.2f} Validation accuracy = {100*valid_acc:.2f}%'
+        self.report_stats(message)
 
 
 def download_input():
@@ -213,7 +285,11 @@ def train(image_files,
                     loss=keras.losses.categorical_crossentropy,
                     metrics=["accuracy"])
                 sorted_domain = sorted(domain.keys(), key=lambda x: domain[x])
-                model.fit(
+
+                slack_update = SlackUpdate(channel='#slack-after-dark',
+                                           slack_webhook_url='https://hooks.slack.com/services/T/B/G')
+
+                history = model.fit(
                     x=x_train,
                     y=y_train,
                     validation_data=(x_valid, y_valid),
@@ -226,8 +302,33 @@ def train(image_files,
                                             y_valid=y_valid,
                                             artifact_path="model",
                                             domain=sorted_domain,
-                                            image_dims=input_shape)])
+                                            image_dims=input_shape),
+                                           slack_update])
 
+                # From the following:  https://keras.io/visualization/
 
+                # Plot training & validation accuracy values
+                plt.plot(history.history['acc'])
+                plt.plot(history.history['val_acc'])
+                plt.title('Model accuracy')
+                plt.ylabel('Accuracy')
+                plt.xlabel('Epoch')
+                plt.legend(['Train', 'Test'], loc='upper left')
+                plt.show()
+
+                # Plot training & validation loss values
+                plt.plot(history.history['loss'])
+                plt.plot(history.history['val_loss'])
+                plt.title('Model loss')
+                plt.ylabel('Loss')
+                plt.xlabel('Epoch')
+                plt.legend(['Train', 'Test'], loc='upper left')
+                plt.show()
+
+                # plot_history(history.history)
+                plt.savefig('training_charts.png')
+                #slack_update.file_upload(path='training_charts.png',
+                #                         title='Charts')
+            
 if __name__ == '__main__':
     run()
