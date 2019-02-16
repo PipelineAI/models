@@ -92,7 +92,7 @@ def _transform_request(request):
             request = download_image(result[0][5:])
             print(request)
                
-    predict_img = image.load_img(request, target_size=(224, 224))
+    predict_img = image.load_img(request, target_size=(28, 28))
     predict_img_array = image.img_to_array(predict_img)
     predict_img_array = np.expand_dims(predict_img_array, axis=0)
     predict_preprocess_img = preprocess_input(predict_img_array)

@@ -178,5 +178,8 @@ with mlflow.start_run() as run:
 
     model.evaluate(x_test, y_test)
 
+    saved_model_path = tf.contrib.saved_model.save_keras_model(model, "./pipeline_tfserving")
+    print(saved_model_path)
+
 #if __name__ == '__main__':
 #    run()
