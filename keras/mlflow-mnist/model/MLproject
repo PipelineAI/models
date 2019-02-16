@@ -1,0 +1,15 @@
+name: mlflow-mnist
+
+conda_env: pipeline_conda_environment.yaml
+
+entry_points:
+  # train Keras DL model
+  main:
+    parameters:
+      epochs: {type: int, default: 1}
+      batch_size: {type: int, default: 16}
+      test_ratio: {type: float, default: 0.2}
+    command: "python pipeline_train.py --batch-size {batch_size}
+                                       --epochs {epochs}
+                                       --test-ratio {test_ratio}"
+

@@ -1,0 +1,16 @@
+dependencies:
+  - python=3.6
+  - numpy==1.14.2
+  - keras==2.2.4
+  - pandas
+  - pip:
+    - grpcio>=1.0
+    - tensorflow==1.12.0
+    - pipeline-runtime==1.0.8
+# These are required
+    - pandas
+    - mlflow
+    - click==6.7
+    - scikit-learn
+    - pillow
+    - matplotlib
