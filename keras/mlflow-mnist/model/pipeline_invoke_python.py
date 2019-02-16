@@ -113,7 +113,7 @@ if __name__ == '__main__':
 #    request = './images/predict/cat.jpg'
 #    request = b'http%3A%2F%2Fsite.meishij.net%2Fr%2F58%2F25%2F3568808%2Fa3568808_142682562777944.jpg'
 
-    request = b'token=asdasd&team_id=T6QHWMRD4&team_domain=pipelineai&channel_id=adfasdf&channel_name=privategroup&user_id=asdfasdf&user_name=cfregly&command=/predict&text=https://images.ctfassets.net/kvimhx6nhg7h/5WclEHFxUksuS2IwsUECE6/a29fa96920666f9d4eb7c456403e4f9d/Tan-cat-in-a-cone.png&response_url=https://hooks.slack.com/commands/T/5/r&trigger_id=3d3'
+    request = b'token=asdasd&team_id=T6QHWMRD4&team_domain=pipelineai&channel_id=adfasdf&channel_name=privategroup&user_id=asdfasdf&user_name=cfregly&command=/predict&text=http://blog.otoro.net/assets/20160401/png/mnist_input_0.png&response_url=https://hooks.slack.com/commands/T/5/r&trigger_id=3d3'
 
     response = invoke(request)
     print(response)
