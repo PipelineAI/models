@@ -7,7 +7,10 @@ import mlflow
 from datetime import datetime
 import math
 import numpy as np
-from image_pyfunc import log_model
+#from image_pyfunc import log_model
+import os
+import yaml
+import mlflow.keras
 
 #
 # See https://nbviewer.jupyter.org/github/WillKoehrsen/Data-Analysis/blob/master/slack_interaction/Interacting%20with%20Slack.ipynb for more details.
@@ -125,8 +128,29 @@ class MLflowLogger(Callback):
             mlflow.log_metric("valid_{}".format(name), value)
         log_model(keras_model=self._model, **self._pyfunc_params)
 
-
 import tensorflow as tf
+
+from mlflow.utils.file_utils import TempDir
+
+def log_model(keras_model, artifact_path, image_dims, domain):
+    with TempDir() as tmp:
+        data_path = tmp.path("image_model")
+        os.mkdir(data_path)
+        conf = {
+            "image_dims": "/".join(map(str, image_dims)),
+            "domain": "/".join(map(str, domain))
+        }
+        with open(os.path.join(data_path, "conf.yaml"), "w") as f:
+            yaml.safe_dump(conf, stream=f)
+        keras_path = os.path.join(data_path, "keras_model")
+        mlflow.keras.save_model(keras_model, path=keras_path)
+
+        mlflow.pyfunc.log_model(artifact_path=artifact_path,
+                                loader_module=__name__,
+                                code_path=[__file__],
+                                data_path=data_path,
+                                conda_env='pipeline_conda_environment.yaml')
+
 
 #mlflow.set_tracking_uri('https://community.cloud.pipeline.ai/admin/tracking')
 
@@ -134,7 +158,7 @@ import tensorflow as tf
 mlflow.set_experiment('83f05e58mlflow-mnist')
 
 with mlflow.start_run() as run:
-    epochs = 10 
+    epochs = 1 
     batch_size = 256
     test_ratio = 0.2
     mlflow.log_param("epochs", str(epochs))
