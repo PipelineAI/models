@@ -138,9 +138,7 @@ class MLflowLogger(Callback):
 @click.option("--batch-size", type=click.INT, default=16,
               help="Batch size passed to the learning algo.")
 def run(epochs, batch_size):
-
-    #tracking_uri = 'http://52.42.75.92:5000'
-    tracking_uri = 'http://52.42.75.92:31980'
+    tracking_uri = 'https://community.cloud.pipeline.ai'
 
     mlflow.set_tracking_uri(tracking_uri)
 
@@ -232,9 +230,9 @@ def run(epochs, batch_size):
     mlflow.log_artifact('viz_training_accuracy.png')
     mlflow.log_artifact('viz_training_loss.png')
 
-    print(run)
-    print('Navigate to %s/admin/tracking/#/experiments/%s/runs/%s' % (tracking_uri, run.info.experiment_id, run.info.run_uuid))
+    print(mlflow.get_artifact_uri())
 
+    print('Navigate to %s/admin/tracking/#/experiments/%s/runs/%s' % (tracking_uri, run.info.experiment_id, run.info.run_uuid))
 
 if __name__ == '__main__':
     run()

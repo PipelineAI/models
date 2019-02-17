@@ -10,6 +10,5 @@ entry_points:
       batch_size: {type: int, default: 16}
       test_ratio: {type: float, default: 0.2}
     command: "python pipeline_train.py --batch-size {batch_size}
-                                       --epochs {epochs}
-                                       --test-ratio {test_ratio}"
+                                       --epochs {epochs}"
 
