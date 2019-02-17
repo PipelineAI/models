@@ -5,12 +5,16 @@ from keras.callbacks import Callback
 from keras.layers import Dense, Flatten
 import mlflow
 from datetime import datetime
+import time
 import math
 import numpy as np
-#from image_pyfunc import log_model
+from image_pyfunc import log_model
 import os
 import yaml
-import mlflow.keras
+import click
+import matplotlib.pyplot as plt
+from keras.utils import plot_model
+
 
 #
 # See https://nbviewer.jupyter.org/github/WillKoehrsen/Data-Analysis/blob/master/slack_interaction/Interacting%20with%20Slack.ipynb for more details.
@@ -126,62 +130,44 @@ class MLflowLogger(Callback):
         valid_res = self._model.evaluate(x=x, y=y)
         for name, value in zip(self._model.metrics_names, valid_res):
             mlflow.log_metric("valid_{}".format(name), value)
-        log_model(keras_model=self._model, **self._pyfunc_params)
-
-import tensorflow as tf
-
-from mlflow.utils.file_utils import TempDir
-
-def log_model(keras_model, artifact_path, image_dims, domain):
-    with TempDir() as tmp:
-        data_path = tmp.path("image_model")
-        os.mkdir(data_path)
-        conf = {
-            "image_dims": "/".join(map(str, image_dims)),
-            "domain": "/".join(map(str, domain))
-        }
-        with open(os.path.join(data_path, "conf.yaml"), "w") as f:
-            yaml.safe_dump(conf, stream=f)
-        keras_path = os.path.join(data_path, "keras_model")
-        mlflow.keras.save_model(keras_model, path=keras_path)
-
-        mlflow.pyfunc.log_model(artifact_path=artifact_path,
-                                loader_module=__name__,
-                                code_path=[__file__],
-                                data_path=data_path,
-                                conda_env='pipeline_conda_environment.yaml')
 
 
-#mlflow.set_tracking_uri('https://community.cloud.pipeline.ai/admin/tracking')
+@click.command(help="Trains a Keras model mnist dataset."
+                    "The model and its metrics are logged with mlflow.")
+@click.option("--epochs", type=click.INT, default=1, help="Maximum number of epochs to evaluate.")
+@click.option("--batch-size", type=click.INT, default=16,
+              help="Batch size passed to the learning algo.")
+def run(epochs, batch_size):
 
-# This will create and set the experiment
-mlflow.set_experiment('83f05e58mlflow-mnist')
+    #tracking_uri = 'http://52.42.75.92:5000'
+    tracking_uri = 'http://52.42.75.92:31980'
 
-with mlflow.start_run() as run:
-    epochs = 1 
-    batch_size = 256
-    test_ratio = 0.2
-    mlflow.log_param("epochs", str(epochs))
-    mlflow.log_param("batch_size", str(batch_size))
-    mlflow.log_param("test_ratio", str(test_ratio))
+    mlflow.set_tracking_uri(tracking_uri)
 
-    mnist = tf.keras.datasets.mnist
+    # This will create and set the experiment
+    mlflow.set_experiment('%s-mnist' % int(1000 * time.time()))
 
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train, x_test = x_train / 255.0, x_test / 255.0
+    with mlflow.start_run() as run:
+        mlflow.log_param("epochs", str(epochs))
+        mlflow.log_param("batch_size", str(batch_size))
 
-    model = tf.keras.models.Sequential([
-      tf.keras.layers.Flatten(input_shape=(28, 28)),
-      tf.keras.layers.Dense(512, activation=tf.nn.relu),
-      tf.keras.layers.Dropout(0.2),
-      tf.keras.layers.Dense(10, activation=tf.nn.softmax)
-    ])
+        mnist = tf.keras.datasets.mnist
 
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
+        (x_train, y_train), (x_test, y_test) = mnist.load_data()
+        x_train, x_test = x_train / 255.0, x_test / 255.0
 
-    history = model.fit(
+        model = tf.keras.models.Sequential([
+          tf.keras.layers.Flatten(input_shape=(28, 28)),
+          tf.keras.layers.Dense(512, activation=tf.nn.relu),
+          tf.keras.layers.Dropout(0.2),
+          tf.keras.layers.Dense(10, activation=tf.nn.softmax)
+        ])
+
+        model.compile(optimizer='adam',
+                      loss='sparse_categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        history = model.fit(
                     x=x_train,
                     y=y_train,
                     validation_data=(x_test, y_test),
@@ -199,10 +185,56 @@ with mlflow.start_run() as run:
                                            slack_webhook_url='https://hooks.slack.com/services/T/B/G')
                               ])
 
-    model.evaluate(x_test, y_test)
+        model.evaluate(x_test, y_test)
 
-    saved_model_path = tf.contrib.saved_model.save_keras_model(model, "./pipeline_tfserving")
-    print(saved_model_path)
+        saved_model_path = tf.contrib.saved_model.save_keras_model(model, "./pipeline_tfserving")
+        if type(saved_model_path) != str:
+            saved_model_path = saved_model_path.decode('utf-8')
 
-#if __name__ == '__main__':
-#    run()
+        # From the following:  https://keras.io/visualization/
+        print(history)
+        print(history.history)
+
+        plot_model(model, to_file='viz_pipeline_model.png')
+ 
+        # Plot training & validation accuracy values
+        plt.plot(history.history['acc'])
+        plt.plot(history.history['val_acc'])
+        plt.title('Model accuracy')
+        plt.ylabel('Accuracy')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.show()
+        plt.savefig('viz_training_accuracy.png')
+
+        # Plot training & validation loss values
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('Model loss')
+        plt.ylabel('Loss')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.show()
+        plt.savefig('viz_training_loss.png')
+
+    mlflow.log_artifacts(saved_model_path)
+    mlflow.log_artifact('pipeline_conda_environment.yaml')
+    mlflow.log_artifact('pipeline_train.py')
+    mlflow.log_artifact('image_pyfunc.py')
+    mlflow.log_artifact('pipeline_invoke_python.py')
+    mlflow.log_artifact('pipeline_modelserver.properties')
+    mlflow.log_artifact('pipeline_tfserving.properties')
+    mlflow.log_artifact('MLproject')
+    mlflow.log_artifact('pipeline_condarc')
+    mlflow.log_artifact('pipeline_ignore')
+    mlflow.log_artifact('pipeline_setup.sh')
+    mlflow.log_artifact('viz_pipeline_model.png')
+    mlflow.log_artifact('viz_training_accuracy.png')
+    mlflow.log_artifact('viz_training_loss.png')
+
+    print(run)
+    print('Navigate to %s/admin/tracking/#/experiments/%s/runs/%s' % (tracking_uri, run.info.experiment_id, run.info.run_uuid))
+
+
+if __name__ == '__main__':
+    run()

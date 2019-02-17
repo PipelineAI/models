@@ -3,6 +3,8 @@ dependencies:
   - numpy==1.14.2
   - keras==2.2.4
   - pandas
+  - pydot
+  - graphviz
   - pip:
     - grpcio>=1.0
     - tensorflow==1.12.0
