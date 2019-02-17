@@ -27,7 +27,7 @@ __all__ = ['invoke']
 
 
 _labels = {
-           'name': 'transfer',
+           'name': 'mnist',
            'tag': 'v1',
            'runtime': 'python',
            'chip': 'cpu',
@@ -70,7 +70,7 @@ def invoke(request):
 
 def download_image(url):
     name = random.randrange(1,100000)
-    fullname = '/tmp/' + str(name) + ".img"
+    fullname = '/tmp/' + str(name) + ".png"
     urllib.request.urlretrieve(url, fullname)     
     return fullname
 
@@ -92,17 +92,26 @@ def _transform_request(request):
             request = download_image(result[0][5:])
             print(request)
                
-    predict_img = image.load_img(request, target_size=(28, 28))
+    predict_img = image.load_img(request, color_mode='grayscale', target_size=(28, 28))
+    print(tf.shape(predict_img))
+
     predict_img_array = image.img_to_array(predict_img)
     predict_img_array = np.expand_dims(predict_img_array, axis=0)
+    
+
+    print(tf.shape(predict_img_array))
+    predict_img_array = np.reshape(predict_img_array, (1, 28, 28))
     predict_preprocess_img = preprocess_input(predict_img_array)
 
+    #reshape = tf.reshape(predict_preprocess_img, (1, 28, 28))
+    #return reshape
     return predict_preprocess_img
 
 
 def _transform_response(response):
 
     # response_formatted = '\\n '.join("%s%%\t%s" % (str((100 * item['score']))[0:4], item['name']) for item in classification_response_json)
+    _classes_list = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
     return json.dumps({"classes": [item.split('/')[-1] for item in _classes_list], 
                        "probabilities": ['%.2f%%' % (item * 100) for item in response.tolist()[0]],

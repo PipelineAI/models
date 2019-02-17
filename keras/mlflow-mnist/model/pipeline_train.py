@@ -131,8 +131,7 @@ import tensorflow as tf
 #mlflow.set_tracking_uri('https://community.cloud.pipeline.ai/admin/tracking')
 
 # This will create and set the experiment
-#mlflow.set_experiment(str(int(time.time()))[2:] + 'flower-v1')
-#mlflow.set_experiment('83f05e58mlflow-mnist')
+mlflow.set_experiment('83f05e58mlflow-mnist')
 
 with mlflow.start_run() as run:
     epochs = 10 
