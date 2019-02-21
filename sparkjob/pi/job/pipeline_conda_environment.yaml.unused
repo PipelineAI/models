@@ -1,0 +1,4 @@
+dependencies:
+  - python=3.6
+  - pip:
+    - click==6.7
