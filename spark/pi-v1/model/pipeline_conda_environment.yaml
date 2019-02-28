@@ -2,3 +2,4 @@ dependencies:
   - python=3.6
   - pip:
     - click==6.7
+    - mlflow==0.8.2

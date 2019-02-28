@@ -1,47 +1,57 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
 from __future__ import print_function
 
 import sys
 from random import random
 from operator import add
-
+import math
 from pyspark.sql import SparkSession
+import mlflow
 
+import calculate_pi
+
+#user_id = <YOUR_USER_ID>
+user_id = ''
+model_name = 'sparkpi'
+model_tag = 'v1'
 
 if __name__ == "__main__":
     """
         Usage: pi [partitions]
     """
-    spark = SparkSession\
-        .builder\
-        .appName("PythonPi")\
-        .getOrCreate()
+    tracking_uri = 'https://community.cloud.pipeline.ai'
 
-    partitions = int(sys.argv[1]) if len(sys.argv) > 1 else 2
-    n = 100000 * partitions
+    mlflow.set_tracking_uri(tracking_uri)
 
-    def f(_):
-        x = random() * 2 - 1
-        y = random() * 2 - 1
-        return 1 if x ** 2 + y ** 2 <= 1 else 0
+    experiment_name = '%s%s-%s' % (user_id, model_name, model_tag)
+    
+    # This will create and set the experiment
+    mlflow.set_experiment(experiment_name)
 
-    count = spark.sparkContext.parallelize(range(1, n + 1), partitions).map(f).reduce(add)
-    print("Pi is roughly %f" % (4.0 * count / n))
+    with mlflow.start_run() as run:
+        spark = SparkSession\
+            .builder\
+            .appName("PythonSparkPi")\
+            .getOrCreate()
+
+        partitions = 2
+        n = 100000 * partitions
+
+        mlflow.log_param('partitions', str(partitions))
+        mlflow.log_param('n', str(n))
+                
+        def f(_):
+            x = random() * 2 - 1
+            y = random() * 2 - 1
+            return 1 if x ** 2 + y ** 2 <= 1 else 0
+
+        count = spark.sparkContext.parallelize(range(1, n + 1), partitions).map(f).reduce(add)
+    
+        calculated_pi = calculate_pi.calculate(count=count, n=n)
+    
+        print("Pi is roughly %f" % calculated_pi)
+    
+        error = abs(math.pi - calculated_pi)        
+        mlflow.log_metric('error_pct', error * 100)
 
     spark.stop()
+
