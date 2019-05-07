@@ -1,5 +1,5 @@
 dependencies:
-  - python=3.6
+  - python=3.6.7
   - openssl>=1.0.2l=0
   - pandas>=0.22.0
   - numpy>=1.14.0
@@ -10,5 +10,5 @@ dependencies:
   - h5py>=2.7.0
   - pip:  
     - keras==2.2.0
-    - tensorflow==1.12.0-rc2
+    - tensorflow==1.12.0
     - pipeline-runtime==1.0.8

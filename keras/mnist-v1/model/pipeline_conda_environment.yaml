@@ -1,5 +1,5 @@
 dependencies:
-  - python=3.6
+  - python=3.6.7
   - pip:
     - grpcio>=1.0
     - tensorflow==1.12.0

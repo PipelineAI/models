@@ -1,5 +1,5 @@
 dependencies:
-  - python=3.6
+  - python=3.6.7
   - numpy==1.14.2
   - keras==2.2.4
   - pandas

@@ -1,5 +1,5 @@
 dependencies:
-  - python=3.6
+  - python=3.6.7
   - requests=2.19.1
   - pip:
     - pipeline-runtime==1.0.8

@@ -1,9 +1,9 @@
 dependencies:
-  - python=3.6
+  - python=3.6.7
   - pip:
     - grpcio>=1.0
     - pandas==0.23.4
     - keras==2.2.2
     - h5py==2.8.0
-    - tensorflow==1.12.0-rc2
+    - tensorflow==1.12.0
     - pipeline-runtime==1.0.8
