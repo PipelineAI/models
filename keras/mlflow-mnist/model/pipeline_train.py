@@ -156,8 +156,12 @@ def run(epochs, batch_size):
     mlflow.set_tracking_uri(tracking_uri)
 
     # This will create and set the experiment
-    mlflow.set_experiment('%s-mnist' % int(1000 * time.time()))
+    #mlflow.set_experiment('%s-mnist' % int(1000 * time.time()))
 
+    experiment_name = '%s-%s' % (os.getenv('PIPELINE_RESOURCE_NAME', 'mnist'), os.getenv('PIPELINE_TAG', int(1000 * time.time())))
+
+    mlflow.set_experiment(experiment_name)
+    
     with mlflow.start_run() as run:
         mlflow.log_param("epochs", str(epochs))
         mlflow.log_param("batch_size", str(batch_size))
