@@ -7,11 +7,11 @@ dependencies:
   - graphviz
   - pip:
     - grpcio>=1.0
-    - tensorflow==1.12.0
+    - tensorflow==1.13.1
     - pipeline-runtime==1.0.8
 # These are required
     - pandas
-    - mlflow
+    - mlflow==0.9.1
     - click==6.7
     - scikit-learn
     - pillow

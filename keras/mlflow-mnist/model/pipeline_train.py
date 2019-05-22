@@ -81,6 +81,13 @@ class SlackLogger(Callback):
         message = f'Best validation loss = {valid_loss:.4f} Training Loss = {train_loss:.2f} Validation accuracy = {100*valid_acc:.2f}%'
         self.report_stats(message)
 
+    def on_train_batch_begin(self, batch, logs={}):
+        pass
+
+    def on_train_batch_end(self, batch, logs={}):
+        pass
+
+
 class MLflowLogger(Callback):
     """
     Keras callback for logging metrics and final model with MLflow.
@@ -130,6 +137,12 @@ class MLflowLogger(Callback):
         valid_res = self._model.evaluate(x=x, y=y)
         for name, value in zip(self._model.metrics_names, valid_res):
             mlflow.log_metric("valid_{}".format(name), value)
+
+    def on_train_batch_begin(self, batch, logs={}):
+        pass
+
+    def on_train_batch_end(self, batch, logs={}):
+        pass
 
 
 @click.command(help="Trains a Keras model mnist dataset."

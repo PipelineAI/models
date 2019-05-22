@@ -94,6 +94,12 @@ class SlackUpdate(Callback):
         message = f'Best validation loss = {valid_loss:.4f} Training Loss = {train_loss:.2f} Validation accuracy = {100*valid_acc:.2f}%'
         self.report_stats(message)
 
+    def on_train_batch_begin(self, batch, logs={}):
+        pass
+
+    def on_train_batch_end(self, batch, logs={}):
+        pass
+
 
 def download_input():
     import requests
@@ -200,6 +206,12 @@ class MLflowLogger(Callback):
         for name, value in zip(self._model.metrics_names, valid_res):
             mlflow.log_metric("valid_{}".format(name), value)
         log_model(keras_model=self._model, **self._pyfunc_params)
+
+    def on_train_batch_begin(self, batch, logs={}):
+        pass
+
+    def on_train_batch_end(self, batch, logs={}):
+        pass
 
 
 def _imagenet_preprocess_tf(x):
