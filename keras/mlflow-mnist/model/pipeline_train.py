@@ -151,12 +151,12 @@ class MLflowLogger(Callback):
 @click.option("--batch-size", type=click.INT, default=16,
               help="Batch size passed to the learning algo.")
 def run(epochs, batch_size):
-    tracking_uri = 'https://community.cloud.pipeline.ai'
+#    tracking_uri = 'https://community.cloud.pipeline.ai'
 
+    users_home = '/mnt/pipelineai/users' 
+    experiment_base_path = '%s/experiments' % users_home
+    tracking_uri='file://%s' % experiment_base_path
     mlflow.set_tracking_uri(tracking_uri)
-
-    # This will create and set the experiment
-    #mlflow.set_experiment('%s-mnist' % int(1000 * time.time()))
 
     experiment_name = '%s-%s' % (os.getenv('PIPELINE_RESOURCE_NAME', 'mnist'), os.getenv('PIPELINE_TAG', int(1000 * time.time())))
 
@@ -202,9 +202,16 @@ def run(epochs, batch_size):
 
         model.evaluate(x_test, y_test)
 
-        saved_model_path = tf.contrib.saved_model.save_keras_model(model, "./pipeline_tfserving")
+        #saved_model_path = tf.contrib.saved_model.save_keras_model(model, "./pipeline_tfserving")
+
+        output_path = os.getenv('PIPELINE_OUTPUT_PATH', './unknown_output_path')
+        print('output path:  %s' % output_path)
+
+        saved_model_path = tf.contrib.saved_model.save_keras_model(model, output_path)
         if type(saved_model_path) != str:
             saved_model_path = saved_model_path.decode('utf-8')
+
+        print('saved model path:  %s' % saved_model_path)
 
         # From the following:  https://keras.io/visualization/
         print(history)
@@ -232,24 +239,38 @@ def run(epochs, batch_size):
         plt.show()
         plt.savefig('viz_training_loss.png')
 
-        mlflow.log_artifacts(saved_model_path)
-        mlflow.log_artifact('pipeline_conda_environment.yaml')
-        mlflow.log_artifact('pipeline_train.py')
-        mlflow.log_artifact('image_pyfunc.py')
-        mlflow.log_artifact('pipeline_invoke_python.py')
-        mlflow.log_artifact('pipeline_modelserver.properties')
-        mlflow.log_artifact('pipeline_tfserving.properties')
-        mlflow.log_artifact('MLproject')
-        mlflow.log_artifact('pipeline_condarc')
-        mlflow.log_artifact('pipeline_ignore')
-        mlflow.log_artifact('pipeline_setup.sh')
-        mlflow.log_artifact('viz_pipeline_model.png')
-        mlflow.log_artifact('viz_training_accuracy.png')
-        mlflow.log_artifact('viz_training_loss.png')
+        mlflow.log_artifacts(artifact_path='model',
+                             local_dir=saved_model_path)
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_conda_environment.yaml')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_train.py')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='image_pyfunc.py')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_invoke_python.py')
+        mlflow.log_artifact(artifact_path='model', 
+                            local_path='pipeline_modelserver.properties')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_tfserving.properties')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='MLproject')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_condarc')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_ignore')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='pipeline_setup.sh')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='viz_pipeline_model.png')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='viz_training_accuracy.png')
+        mlflow.log_artifact(artifact_path='model',
+                            local_path='viz_training_loss.png')
 
         print('Artifact URI: %s' % mlflow.get_artifact_uri())
-
-        print('Navigate to %s/admin/tracking/#/experiments/%s/runs/%s' % (tracking_uri, run.info.experiment_id, run.info.run_uuid))
+        print('Resource ID (Run ID): %s' % run.info.run_uuid)
+        print('Navigate to %s/admin/tracking/#/experiments/%s' % (tracking_uri, run.info.experiment_id))
 
 if __name__ == '__main__':
     run()
